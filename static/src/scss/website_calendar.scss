@@ -1,0 +1,71 @@
+/*
+ * Public-website calendar widget styles.
+ * Mirrors the printed calendar look, scaled responsive.
+ */
+.s_elks_calendar {
+  --accent: #c0392b;
+  --accent-2: #1f6f4a;
+
+  .elks-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border: 1px solid #2b1b1b;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .head {
+    background: #fafafa;
+    text-align: center;
+    font-weight: 600;
+    padding: 6px 0;
+    border-bottom: 1px solid #e4e4e4;
+    font-size: 13px;
+  }
+  .cell {
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 6px;
+    min-height: 90px;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+  .cell:nth-child(7n) { border-right: none; }
+  .num {
+    color: #888;
+    font-weight: 700;
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+  .banner-block { text-align: center; margin-top: 6px; }
+  .banner-graphic { width: 36px; height: 36px; display: block; margin: 0 auto 2px; }
+  .banner-headline { font-weight: 800; font-size: 14px; line-height: 1.1; }
+  .banner-sub { font-size: 10px; font-weight: 600; }
+
+  /* Banner color themes */
+  .banner-queen_hearts .banner-headline { color: var(--accent); }
+  .banner-lodge_meeting .banner-headline { color: var(--accent); }
+  .banner-church .banner-headline { color: var(--accent-2); }
+  .banner-loudmouth .banner-headline { color: #2b2b2b; }
+  .banner-penny_bingo .banner-headline { color: #2b2b2b; }
+  .banner-special .banner-block {
+    background: #fff7e6;
+    border: 1px dashed #d49100;
+    padding: 4px;
+    border-radius: 4px;
+  }
+  .banner-closed .banner-headline {
+    color: #777;
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  /* Responsive — stack to a list on mobile */
+  @media (max-width: 600px) {
+    .elks-cal-grid {
+      grid-template-columns: 1fr;
+    }
+    .head { display: none; }
+    .cell { min-height: 0; border-right: none; }
+  }
+}

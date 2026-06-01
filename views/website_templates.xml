@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- Full-page public calendar -->
+  <template id="public_calendar_page" name="Elks Calendar — Public Page">
+    <t t-call="website.layout">
+      <div id="wrap" class="oe_structure">
+        <section class="elks-pub-cal container py-4">
+          <header class="d-flex justify-content-between align-items-end mb-3">
+            <h1 class="display-5 mb-0" t-esc="pub.name"/>
+            <a t-att-href="'/web/content/%d?download=true' % pub.pdf_attachment_id.id"
+               t-if="pub.pdf_attachment_id"
+               class="btn btn-outline-secondary">Download PDF</a>
+          </header>
+          <!--
+            The same QWeb template that drives the PDF report renders here
+            scaled to the responsive container width. CSS in
+            website_calendar.scss handles small-screen stacking.
+          -->
+          <t t-call="elks_calendar_publisher.report_calendar_document">
+            <t t-set="docs" t-value="pub"/>
+          </t>
+        </section>
+      </div>
+    </t>
+  </template>
+
+  <!-- Friendly empty state -->
+  <template id="public_empty" name="Elks Calendar — Empty">
+    <t t-call="website.layout">
+      <div id="wrap" class="oe_structure">
+        <section class="container py-5 text-center">
+          <h2>The Lodge calendar hasn't been published yet</h2>
+          <p class="lead text-muted">
+            Check back soon, or follow Lewiston Elks Lodge #896 on Facebook
+            for the latest updates.
+          </p>
+        </section>
+      </div>
+    </t>
+  </template>
+
+</odoo>

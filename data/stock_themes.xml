@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <!-- 12 stock month themes + 1 fraternal -->
+
+  <record id="theme_winter_snowflake" model="elks.calendar.theme">
+    <field name="name">Winter Snowflake</field>
+    <field name="code">winter_snowflake</field>
+    <field name="applies_to_month">1</field>
+    <field name="primary_color">#1d3557</field>
+    <field name="secondary_color">#a8dadc</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_valentines_hearts" model="elks.calendar.theme">
+    <field name="name">Valentine's Hearts</field>
+    <field name="code">valentines_hearts</field>
+    <field name="applies_to_month">2</field>
+    <field name="primary_color">#c0392b</field>
+    <field name="secondary_color">#f8b4c0</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_shamrock_spring" model="elks.calendar.theme">
+    <field name="name">Shamrock Spring</field>
+    <field name="code">shamrock_spring</field>
+    <field name="applies_to_month">3</field>
+    <field name="primary_color">#1f6f4a</field>
+    <field name="secondary_color">#9ad08a</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_easter_florals" model="elks.calendar.theme">
+    <field name="name">Easter Florals</field>
+    <field name="code">easter_florals</field>
+    <field name="applies_to_month">4</field>
+    <field name="primary_color">#e58fb0</field>
+    <field name="secondary_color">#f9d976</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_spring_blossoms" model="elks.calendar.theme">
+    <field name="name">Spring Blossoms</field>
+    <field name="code">spring_blossoms</field>
+    <field name="applies_to_month">5</field>
+    <field name="primary_color">#b04a8a</field>
+    <field name="secondary_color">#9ad08a</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_summer_sun" model="elks.calendar.theme">
+    <field name="name">Summer Sun</field>
+    <field name="code">summer_sun</field>
+    <field name="applies_to_month">6</field>
+    <field name="primary_color">#f4a300</field>
+    <field name="secondary_color">#ffe28a</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_patriotic_flag" model="elks.calendar.theme">
+    <field name="name">Patriotic Flag</field>
+    <field name="code">patriotic_flag</field>
+    <field name="applies_to_month">7</field>
+    <field name="primary_color">#b22234</field>
+    <field name="secondary_color">#3c3b6e</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_late_summer_picnic" model="elks.calendar.theme">
+    <field name="name">Late Summer Picnic</field>
+    <field name="code">late_summer_picnic</field>
+    <field name="applies_to_month">8</field>
+    <field name="primary_color">#d49100</field>
+    <field name="secondary_color">#7cb342</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_harvest_leaves" model="elks.calendar.theme">
+    <field name="name">Harvest Leaves</field>
+    <field name="code">harvest_leaves</field>
+    <field name="applies_to_month">9</field>
+    <field name="primary_color">#a0522d</field>
+    <field name="secondary_color">#e8a04b</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_autumn_pumpkin" model="elks.calendar.theme">
+    <field name="name">Autumn Pumpkin</field>
+    <field name="code">autumn_pumpkin</field>
+    <field name="applies_to_month">10</field>
+    <field name="primary_color">#e8590c</field>
+    <field name="secondary_color">#5c2d91</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_thanksgiving_acorn" model="elks.calendar.theme">
+    <field name="name">Thanksgiving Acorn</field>
+    <field name="code">thanksgiving_acorn</field>
+    <field name="applies_to_month">11</field>
+    <field name="primary_color">#7b3f00</field>
+    <field name="secondary_color">#d4a373</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_holiday_evergreen" model="elks.calendar.theme">
+    <field name="name">Holiday Evergreen</field>
+    <field name="code">holiday_evergreen</field>
+    <field name="applies_to_month">12</field>
+    <field name="primary_color">#0b6e3a</field>
+    <field name="secondary_color">#c0392b</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="theme_elks_fraternal" model="elks.calendar.theme">
+    <field name="name">Elks Fraternal</field>
+    <field name="code">elks_fraternal</field>
+    <field name="applies_to_month">0</field>
+    <field name="primary_color">#6f1d77</field>
+    <field name="secondary_color">#d4a017</field>
+    <field name="is_stock">True</field>
+  </record>
+
+</odoo>

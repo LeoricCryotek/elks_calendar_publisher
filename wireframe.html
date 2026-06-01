@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Elks Calendar Publisher — Wireframe</title>
+<style>
+  :root {
+    --odoo-purple: #714b67;
+    --odoo-gray: #f0eeee;
+    --line: #d8d8d8;
+    --ink: #2b2b2b;
+    --muted: #888;
+    --accent: #c0392b;
+    --accent-2: #1f6f4a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background: var(--odoo-gray);
+    color: var(--ink);
+  }
+  h1.page-title {
+    margin: 0;
+    padding: 24px 32px 8px;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  .lede {
+    padding: 0 32px 24px;
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 900px;
+  }
+  .frame {
+    margin: 0 32px 32px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .frame-title {
+    background: var(--odoo-purple);
+    color: #fff;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .nav {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    padding: 8px 14px;
+    display: flex;
+    gap: 18px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .nav .crumb { color: var(--odoo-purple); font-weight: 500; }
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    background: #fafafa;
+  }
+  .btn {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .btn.primary {
+    background: var(--odoo-purple);
+    color: #fff;
+    border-color: var(--odoo-purple);
+  }
+  .btn.danger { color: #c0392b; }
+  table.records {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.records th, table.records td {
+    text-align: left;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.records th {
+    background: #fafafa;
+    font-weight: 600;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge.draft { background: #e9f3fb; color: #2980b9; }
+  .badge.published { background: #e6f6ee; color: #1d7a3a; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 18px 22px;
+  }
+  .form-grid h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+    margin: 0 0 10px;
+  }
+  .field {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 13.5px;
+  }
+  .field label { color: var(--muted); }
+  .field .value {
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: #fff;
+  }
+  .preview-pane {
+    grid-column: span 2;
+    padding: 0 22px 22px;
+  }
+  .preview-pane h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+  }
+  .preview-shell {
+    border: 1px dashed #bbb;
+    background: #fbfaf7;
+    padding: 14px;
+    border-radius: 4px;
+    min-height: 320px;
+    position: relative;
+  }
+  .preview-shell::after {
+    content: "(live HTML render of the QWeb template — same look as our May 2026 calendar)";
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 10.5px;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .mini-cal {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .mini-cal .h {
+    font-size: 9px;
+    text-align: center;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .mini-cal .c {
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 3px;
+    font-size: 9px;
+  }
+  .mini-cal .c .n { color: var(--muted); font-weight: 700; font-size: 9px; }
+  .mini-cal .c.event { background: #fff; }
+  .mini-cal .c.bingo { background: #fff5dc; }
+  .mini-cal .c.qoh   { background: #fde9ea; }
+  .mini-cal .c.closed{ background: #f3f3f3; color: var(--muted); }
+  .mini-head {
+    grid-column: span 7;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 4px 0 6px;
+    color: var(--accent);
+  }
+  .theme-swatches {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    padding: 16px 22px;
+  }
+  .swatch {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+    font-size: 11px;
+  }
+  .swatch .bar {
+    height: 32px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--c1, #999) 0 50%, var(--c2, #ccc) 50% 100%);
+  }
+  .legend {
+    padding: 8px 22px 18px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .ascii {
+    font-family: "Menlo", "Monaco", monospace;
+    white-space: pre;
+    background: #1d1f21;
+    color: #c5c8c6;
+    padding: 14px;
+    border-radius: 4px;
+    margin: 0 32px 32px;
+    font-size: 12px;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Elks Calendar Publisher — UI Wireframe</h1>
+<p class="lede">
+  Three screens are wireframed below: the <strong>list view</strong> of all
+  monthly publications, the <strong>form view</strong> where the editor picks
+  month / theme / source calendar, and the <strong>theme catalog</strong> of
+  stock graphics. Output looks like the May 2026 page already in your folder.
+</p>
+
+<!-- ============== LIST VIEW ============== -->
+<div class="frame">
+  <div class="frame-title">Screen 1 — Publications List</div>
+  <div class="nav">
+    <span>Elks Calendar</span><span>›</span>
+    <span class="crumb">Publications</span>
+  </div>
+  <div class="toolbar">
+    <button class="btn primary">+ New</button>
+    <button class="btn">⤓ Export</button>
+    <button class="btn">⎘ Duplicate</button>
+    <span style="flex:1"></span>
+    <input class="value" style="width:220px" value="Search…" />
+  </div>
+  <table class="records">
+    <thead>
+      <tr>
+        <th>Name</th><th>Month</th><th>Year</th>
+        <th>Theme</th><th>Status</th><th>PDF</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>May 2026 Calendar</td><td>May</td><td>2026</td><td>Spring Blossoms</td><td><span class="badge draft">Draft</span></td><td>—</td></tr>
+      <tr><td>April 2026 Calendar</td><td>April</td><td>2026</td><td>Easter Florals</td><td><span class="badge published">Published</span></td><td>📎 PDF</td></tr>
+      <tr><td>March 2026 Calendar</td><td>March</td><td>2026</td><td>Shamrock Spring</td><td><span class="badge published">Published</span></td><td>📎 PDF</td></tr>
+      <tr><td>February 2026 Calendar</td><td>February</td><td>2026</td><td>Valentine's Hearts</td><td><span class="badge published">Published</span></td><td>📎 PDF</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============== FORM VIEW ============== -->
+<div class="frame">
+  <div class="frame-title">Screen 2 — Publication Form (editing May 2026)</div>
+  <div class="nav">
+    <span>Elks Calendar</span><span>›</span>
+    <span>Publications</span><span>›</span>
+    <span class="crumb">May 2026 Calendar</span>
+  </div>
+  <div class="toolbar">
+    <button class="btn primary">Generate PDF</button>
+    <button class="btn">Open PDF</button>
+    <button class="btn">Publish to Website</button>
+    <span style="flex:1"></span>
+    <span class="badge draft">Draft</span>
+  </div>
+  <div class="form-grid">
+    <div>
+      <h3>When</h3>
+      <div class="field"><label>Month</label><div class="value">May</div></div>
+      <div class="field"><label>Year</label><div class="value">2026</div></div>
+    </div>
+    <div>
+      <h3>Look &amp; Feel</h3>
+      <div class="field"><label>Theme</label><div class="value">Spring Blossoms ▾</div></div>
+      <div class="field"><label>Header Title</label><div class="value">Lewiston Elks Lodge #896</div></div>
+      <div class="field"><label>Subtitle</label><div class="value">From our Home on the River</div></div>
+    </div>
+    <div>
+      <h3>Source</h3>
+      <div class="field"><label>Source Calendar</label><div class="value">Lodge Events ▾</div></div>
+      <div class="field"><label>Pinned events</label><div class="value">Hawaiian Night (×); Craft Fair (×); +</div></div>
+    </div>
+    <div>
+      <h3>Footer</h3>
+      <div class="field"><label>Disclaimer</label><div class="value">Calendar items, dates and times are subject to change…</div></div>
+    </div>
+
+    <div class="preview-pane">
+      <h3>Live Preview</h3>
+      <div class="preview-shell">
+        <div class="mini-cal">
+          <div class="mini-head">May 2026 — Spring Blossoms theme</div>
+          <div class="h">Sun</div><div class="h">Mon</div><div class="h">Tue</div>
+          <div class="h">Wed</div><div class="h">Thu</div><div class="h">Fri</div><div class="h">Sat</div>
+
+          <div class="c"></div><div class="c"></div><div class="c"></div>
+          <div class="c"></div><div class="c"></div>
+          <div class="c event"><span class="n">1</span> Lukenbills</div>
+          <div class="c closed"><span class="n">2</span></div>
+
+          <div class="c closed"><span class="n">3</span></div>
+          <div class="c closed"><span class="n">4</span></div>
+          <div class="c qoh"><span class="n">5</span> Lodge Mtg · ♥ QOH</div>
+          <div class="c bingo"><span class="n">6</span> Loudmouth Bingo</div>
+          <div class="c event"><span class="n">7</span> Sing-a-long</div>
+          <div class="c event"><span class="n">8</span> Dan Faller</div>
+          <div class="c closed"><span class="n">9</span></div>
+
+          <div class="c closed"><span class="n">10</span></div>
+          <div class="c closed"><span class="n">11</span></div>
+          <div class="c bingo"><span class="n">12</span> Loudmouth Bingo</div>
+          <div class="c"></div>
+          <div class="c qoh"><span class="n">14</span> ♥ QOH</div>
+          <div class="c event"><span class="n">15</span> 🌺 The Senders</div>
+          <div class="c event"><span class="n">16</span> Craft Fair</div>
+
+          <div class="c closed"><span class="n">17</span></div>
+          <div class="c closed"><span class="n">18</span></div>
+          <div class="c qoh"><span class="n">19</span> Lodge Mtg · ♥ QOH</div>
+          <div class="c bingo"><span class="n">20</span> Bingo at Lodge</div>
+          <div class="c qoh"><span class="n">21</span> ♥ QOH</div>
+          <div class="c event"><span class="n">22</span> Larry Dahlberg</div>
+          <div class="c closed"><span class="n">23</span></div>
+
+          <div class="c closed"><span class="n">24</span></div>
+          <div class="c closed"><span class="n">25</span></div>
+          <div class="c bingo"><span class="n">26</span> Loudmouth Bingo</div>
+          <div class="c"></div>
+          <div class="c qoh"><span class="n">28</span> ♥ QOH</div>
+          <div class="c event"><span class="n">29</span> Lukenbills</div>
+          <div class="c event"><span class="n">30</span> River Runners</div>
+
+          <div class="c closed"><span class="n">31</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== THEME CATALOG ============== -->
+<div class="frame">
+  <div class="frame-title">Screen 3 — Stock Theme Catalog</div>
+  <div class="nav"><span>Elks Calendar</span><span>›</span><span class="crumb">Themes</span></div>
+  <div class="toolbar">
+    <button class="btn primary">+ New Theme</button>
+    <span style="flex:1"></span>
+    <span style="font-size:12px;color:var(--muted)">Stock themes are read-only · admins can clone.</span>
+  </div>
+  <div class="theme-swatches">
+    <div class="swatch" style="--c1:#1d3557;--c2:#a8dadc"><div class="bar"></div>Jan · Winter Snowflake</div>
+    <div class="swatch" style="--c1:#c0392b;--c2:#f8b4c0"><div class="bar"></div>Feb · Valentine's Hearts</div>
+    <div class="swatch" style="--c1:#1f6f4a;--c2:#9ad08a"><div class="bar"></div>Mar · Shamrock Spring</div>
+    <div class="swatch" style="--c1:#e58fb0;--c2:#f9d976"><div class="bar"></div>Apr · Easter Florals</div>
+    <div class="swatch" style="--c1:#b04a8a;--c2:#9ad08a"><div class="bar"></div>May · Spring Blossoms</div>
+    <div class="swatch" style="--c1:#f4a300;--c2:#ffe28a"><div class="bar"></div>Jun · Summer Sun</div>
+    <div class="swatch" style="--c1:#b22234;--c2:#3c3b6e"><div class="bar"></div>Jul · Patriotic Flag</div>
+    <div class="swatch" style="--c1:#d49100;--c2:#7cb342"><div class="bar"></div>Aug · Late Summer Picnic</div>
+    <div class="swatch" style="--c1:#a0522d;--c2:#e8a04b"><div class="bar"></div>Sep · Harvest Leaves</div>
+    <div class="swatch" style="--c1:#e8590c;--c2:#5c2d91"><div class="bar"></div>Oct · Autumn Pumpkin</div>
+    <div class="swatch" style="--c1:#7b3f00;--c2:#d4a373"><div class="bar"></div>Nov · Thanksgiving Acorn</div>
+    <div class="swatch" style="--c1:#0b6e3a;--c2:#c0392b"><div class="bar"></div>Dec · Holiday Evergreen</div>
+    <div class="swatch" style="--c1:#6f1d77;--c2:#d4a017"><div class="bar"></div>Any · Elks Fraternal</div>
+  </div>
+  <div class="legend">
+    Two-color swatch = primary + secondary CSS variable. Each theme also
+    carries an optional decorative SVG strip + header font choice.
+  </div>
+</div>
+
+<!-- ============== EVENT FORM (BANNER SECTION) ============== -->
+<div class="frame">
+  <div class="frame-title">Screen 4 — Calendar Event Form (Banner section added)</div>
+  <div class="nav">
+    <span>Calendar</span><span>›</span>
+    <span>Events</span><span>›</span>
+    <span class="crumb">Loudmouth Bingo (weekly, Tue 6:15pm)</span>
+  </div>
+  <div class="toolbar">
+    <button class="btn primary">Save</button>
+    <button class="btn">Duplicate</button>
+    <span style="flex:1"></span>
+    <span style="font-size:12px;color:var(--muted)">
+      Inherited from <code>calendar.event</code> — the Banner section is what we added.
+    </span>
+  </div>
+  <div class="form-grid">
+    <div>
+      <h3>Standard (existing fields, abbreviated)</h3>
+      <div class="field"><label>Title</label><div class="value">Loudmouth Bingo</div></div>
+      <div class="field"><label>Start</label><div class="value">May 12, 2026 18:15</div></div>
+      <div class="field"><label>End</label><div class="value">May 12, 2026 20:00</div></div>
+      <div class="field"><label>Recurring</label><div class="value">Every Tuesday</div></div>
+    </div>
+    <div style="border:2px dashed var(--accent); padding:14px; border-radius:6px;">
+      <h3 style="color:var(--accent); border-color:var(--accent);">⭐ Lodge Calendar Banner (NEW)</h3>
+      <div class="field"><label>Banner Style</label><div class="value">👄 Loudmouth Bingo ▾</div></div>
+      <div class="field"><label>Headline Label</label><div class="value">Loudmouth Bingo</div></div>
+      <div class="field"><label>Sub-line</label><div class="value">Cards 5:30 · Bingo 6:15</div></div>
+      <div class="field"><label>Priority</label><div class="value">10</div></div>
+    </div>
+
+    <div class="preview-pane">
+      <h3>How this renders on the May 12 cell</h3>
+      <div class="preview-shell" style="min-height:160px; display:flex; gap:20px; align-items:center; justify-content:center;">
+        <div style="text-align:center;">
+          <div style="font-size:11px; color:var(--muted); margin-bottom:6px;">WITHOUT banner flag</div>
+          <div style="width:160px; height:120px; border:1px solid #aaa; border-radius:4px; padding:6px; font-size:10px; text-align:left;">
+            <strong style="font-size:11px; color:var(--muted);">12</strong><br>
+            8:15am Fit &amp; Fall Proof<br>
+            3M's dinners<br>
+            Loudmouth Bingo
+          </div>
+        </div>
+        <div style="font-size:20px; color:var(--muted);">➔</div>
+        <div style="text-align:center;">
+          <div style="font-size:11px; color:var(--muted); margin-bottom:6px;">WITH banner flag</div>
+          <div style="width:160px; height:120px; border:1px solid #aaa; border-radius:4px; padding:6px; font-size:10px; text-align:left;">
+            <strong style="font-size:11px; color:var(--muted);">12</strong><br>
+            8:15am Fit &amp; Fall Proof<br>
+            3M's dinners<br>
+            <div style="text-align:center; font-weight:800; font-size:15px; margin-top:4px;">
+              👄 Loudmouth<br>Bingo
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== DATA FLOW ============== -->
+<div class="ascii">Data flow
+─────────
+
+  ┌────────────────────────────┐
+  │ Odoo calendar.event        │  (extended with banner fields:
+  │  + elks_banner_style       │   queen_hearts, loudmouth,
+  │  + elks_banner_label       │   penny_bingo, lodge_meeting,
+  │  + elks_banner_sub         │   live_music, church, special,
+  │  + elks_banner_priority    │   closed, none)
+  └─────────────┬──────────────┘
+                │ domain: [('start','>=',first),('start','<=',last)]
+                ▼
+  ┌────────────────────────────┐    ┌──────────────────────┐
+  │ elks.calendar.publication  │◀───│ elks.calendar.theme  │
+  │  · month, year             │    │  · primary_color     │
+  │  · theme_id                │    │  · decor_svg         │
+  │  · calendar_id             │    │  · applies_to_month  │
+  │  · event_filter_ids        │    └──────────────────────┘
+  └─────────────┬──────────────┘
+                │ render_qweb_pdf()
+                ▼
+  ┌────────────────────────────┐    ┌──────────────────────┐
+  │ QWeb template              │───▶│ Landscape Letter PDF │
+  │ report_calendar_document   │    │ (ir.attachment)      │
+  └─────────────┬──────────────┘    └──────────────────────┘
+                │
+                ▼
+  ┌────────────────────────────┐
+  │ /elks/calendar/&lt;id&gt;        │   (public website route)
+  └────────────────────────────┘
+</div>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+  <record id="graphic_queen_hearts" model="elks.calendar.graphic">
+    <field name="name">Queen of Hearts (heart + crown)</field>
+    <field name="code">queen_hearts</field>
+    <field name="suggested_banner_style">queen_hearts</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- heart -->
+        <path d="M50 88 C 20 70, 8 50, 18 32 C 28 18, 44 22, 50 36
+                 C 56 22, 72 18, 82 32 C 92 50, 80 70, 50 88 Z"
+              fill="#c0392b"/>
+        <!-- crown -->
+        <path d="M28 28 L36 18 L44 26 L50 14 L56 26 L64 18 L72 28 Z"
+              fill="#d4a017" stroke="#7a5c00" stroke-width="1.5"/>
+      </svg>
+    ]]></field>
+  </record>
+
+  <record id="graphic_loudmouth" model="elks.calendar.graphic">
+    <field name="name">Loudmouth Bingo (open mouth)</field>
+    <field name="code">loudmouth</field>
+    <field name="suggested_banner_style">loudmouth</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="40" fill="#c41e3a"/>
+        <circle cx="50" cy="54" r="28" fill="#3a0008"/>
+        <g fill="#ffffff">
+          <rect x="30" y="29" width="7.5" height="13" rx="1.5"/>
+          <rect x="38.5" y="27" width="7.5" height="15" rx="1.5"/>
+          <rect x="47" y="27" width="7.5" height="15" rx="1.5"/>
+          <rect x="55.5" y="27" width="7.5" height="15" rx="1.5"/>
+          <rect x="64" y="29" width="7.5" height="13" rx="1.5"/>
+        </g>
+        <path d="M 33 58 Q 50 95 67 58 Q 59 67 50 65 Q 41 67 33 58 Z"
+              fill="#ff667a"/>
+        <line x1="50" y1="66" x2="50" y2="86" stroke="#a83050"
+              stroke-width="1.6" opacity="0.55"/>
+      </svg>
+    ]]></field>
+  </record>
+
+  <record id="graphic_penny_bingo" model="elks.calendar.graphic">
+    <field name="name">Bingo at the Lodge (bingo ball)</field>
+    <field name="code">penny_bingo</field>
+    <field name="suggested_banner_style">penny_bingo</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="42" fill="#1f6f4a"/>
+        <circle cx="50" cy="50" r="26" fill="#fff"/>
+        <text x="50" y="58" text-anchor="middle"
+              font-family="Helvetica,Arial,sans-serif"
+              font-size="22" font-weight="800" fill="#1f6f4a">B</text>
+      </svg>
+    ]]></field>
+  </record>
+
+  <record id="graphic_live_music" model="elks.calendar.graphic">
+    <field name="name">Live Music (treble clef)</field>
+    <field name="code">live_music</field>
+    <field name="suggested_banner_style">live_music</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <text x="50" y="78" text-anchor="middle"
+              font-family="Georgia,serif" font-size="80" fill="#6f1d77">𝄞</text>
+      </svg>
+    ]]></field>
+  </record>
+
+  <record id="graphic_church" model="elks.calendar.graphic">
+    <field name="name">Grace Bible Church (cross + arch)</field>
+    <field name="code">church</field>
+    <field name="suggested_banner_style">church</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 80 L30 50 Q50 30 70 50 L70 80 Z" fill="#1f6f4a"/>
+        <rect x="46" y="38" width="8" height="20" fill="#fff"/>
+        <rect x="40" y="46" width="20" height="4" fill="#fff"/>
+      </svg>
+    ]]></field>
+  </record>
+
+  <record id="graphic_lodge_meeting" model="elks.calendar.graphic">
+    <field name="name">Lodge Meeting (gavel)</field>
+    <field name="code">lodge_meeting</field>
+    <field name="suggested_banner_style">lodge_meeting</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="70" width="60" height="10" rx="2" fill="#7a5c00"/>
+        <rect x="55" y="35" width="14" height="40" rx="3"
+              transform="rotate(35 62 55)" fill="#a0522d"/>
+        <rect x="35" y="22" width="24" height="14" rx="3"
+              transform="rotate(35 47 29)" fill="#7a5c00"/>
+      </svg>
+    ]]></field>
+  </record>
+
+  <record id="graphic_special" model="elks.calendar.graphic">
+    <field name="name">Special Event (star)</field>
+    <field name="code">special</field>
+    <field name="suggested_banner_style">special</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="50,10 61,38 92,38 67,57 76,88 50,70 24,88 33,57 8,38 39,38"
+                 fill="#d4a017" stroke="#7a5c00" stroke-width="1.5"/>
+      </svg>
+    ]]></field>
+  </record>
+
+  <record id="graphic_closed" model="elks.calendar.graphic">
+    <field name="name">Lodge Closed (sign)</field>
+    <field name="code">closed</field>
+    <field name="suggested_banner_style">closed</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect x="15" y="35" width="70" height="30" rx="4" fill="#888"/>
+        <text x="50" y="56" text-anchor="middle"
+              font-family="Helvetica,Arial,sans-serif"
+              font-size="14" font-weight="800" fill="#fff">CLOSED</text>
+      </svg>
+    ]]></field>
+  </record>
+
+</odoo>

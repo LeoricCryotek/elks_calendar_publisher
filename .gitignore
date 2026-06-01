@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*.pot
+*.mo
+.DS_Store
+.idea/
+.vscode/
+*.log
+*.sqlite
+*.egg-info/
+build/
+dist/
+.coverage
+.tox/

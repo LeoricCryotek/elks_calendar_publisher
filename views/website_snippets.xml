@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!--
+    Drop-in snippet for the Website Builder.
+    Editors drag "Elks Monthly Calendar" onto any page; the data attributes
+    tell the front-end JS which year/month to load, and whether to show the
+    graphics.
+  -->
+  <template id="snippet_elks_calendar" name="Elks Monthly Calendar">
+    <section class="s_elks_calendar pt32 pb32"
+             data-snippet="s_elks_calendar"
+             data-name="Elks Monthly Calendar">
+      <div class="container">
+        <h2 class="text-center mb-4">Lodge Calendar</h2>
+        <div class="elks-cal-mount"
+             data-year=""
+             data-month=""
+             data-show-graphics="1">
+          <!-- Front-end JS replaces this with the rendered widget -->
+          <p class="text-center text-muted">Loading calendar…</p>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <!--
+    Register the snippet so it appears in the Website Builder side panel.
+
+    Odoo 19 split this into two steps:
+      1. Declare a snippet *group* inside <snippets id="snippet_groups">.
+         The group is what shows up as a category tile in the editor's
+         "Add a block" panel. We give it an id ("elks") via the
+         snippet-group attribute.
+      2. Register the actual snippet inside <snippets id="snippet_structure">
+         with a group="elks" attribute so it lands in that category.
+
+    The pre-19 pattern (putting the t-snippet directly inside snippet_groups)
+    is silently ignored by Odoo 19 — the snippet just wouldn't appear.
+  -->
+  <template id="website_snippets_register"
+            inherit_id="website.snippets" name="Elks Calendar Snippets">
+
+    <!-- 1. Group tile shown in the editor sidebar -->
+    <xpath expr="//snippets[@id='snippet_groups']" position="inside">
+      <t snippet-group="elks"
+         t-snippet="website.s_snippet_group"
+         string="Elks Lodge"
+         t-thumbnail="/elks_calendar_publisher/static/src/img/snippet_thumb.png"/>
+    </xpath>
+
+    <!-- 2. The snippet itself, filed under the elks group -->
+    <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+      <t t-snippet="elks_calendar_publisher.snippet_elks_calendar"
+         t-thumbnail="/elks_calendar_publisher/static/src/img/snippet_thumb.png"
+         group="elks">
+        <keywords>elks calendar lodge events monthly</keywords>
+      </t>
+    </xpath>
+
+  </template>
+
+</odoo>

@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_elks_pub_user,elks.calendar.publication.user,model_elks_calendar_publication,base.group_user,1,1,1,1
+access_elks_theme_user,elks.calendar.theme.user,model_elks_calendar_theme,base.group_user,1,0,0,0
+access_elks_theme_admin,elks.calendar.theme.admin,model_elks_calendar_theme,base.group_system,1,1,1,1
+access_elks_graphic_user,elks.calendar.graphic.user,model_elks_calendar_graphic,base.group_user,1,1,1,0
+access_elks_graphic_admin,elks.calendar.graphic.admin,model_elks_calendar_graphic,base.group_system,1,1,1,1
+access_elks_pub_public,elks.calendar.publication.public,model_elks_calendar_publication,base.group_public,1,0,0,0
+access_elks_graphic_public,elks.calendar.graphic.public,model_elks_calendar_graphic,base.group_public,1,0,0,0

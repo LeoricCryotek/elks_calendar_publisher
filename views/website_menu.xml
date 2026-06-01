@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <!-- Add a "Calendar" link to the public website main menu -->
+  <record id="menu_website_calendar" model="website.menu">
+    <field name="name">Calendar</field>
+    <field name="url">/elks/calendar</field>
+    <field name="parent_id" ref="website.main_menu"/>
+    <field name="sequence">40</field>
+  </record>
+</odoo>

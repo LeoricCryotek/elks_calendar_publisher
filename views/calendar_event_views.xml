@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!--
+    Inherit the standard calendar.event form and add:
+      * Banner section
+      * Graphic-picker section ("do we add a graphic on the calendar?")
+
+    "Include Graphic on Calendar" is the master toggle. When the editor
+    picks a Banner Style, the matching stock graphic is auto-suggested
+    via the onchange in calendar_event.py, so the common case is one
+    click on Save.
+  -->
+  <record id="view_calendar_event_form_inherit" model="ir.ui.view">
+    <field name="name">calendar.event.form.elks.banner</field>
+    <field name="model">calendar.event</field>
+    <field name="inherit_id" ref="calendar.view_calendar_event_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet" position="inside">
+
+        <group string="Lodge Calendar Banner" name="elks_banner">
+          <field name="elks_banner_style"/>
+          <field name="elks_banner_label"
+                 invisible="elks_banner_style == 'none'"
+                 placeholder="e.g. Loudmouth Bingo"/>
+          <field name="elks_banner_sub"
+                 invisible="elks_banner_style == 'none'"
+                 placeholder="e.g. Cards 5:30 · Bingo 6:15"/>
+          <field name="elks_banner_priority"
+                 invisible="elks_banner_style == 'none'"/>
+        </group>
+
+        <group string="Graphic" name="elks_graphic">
+          <field name="elks_use_graphic"
+                 widget="boolean_toggle"
+                 string="Include a graphic on the calendar"/>
+          <field name="elks_graphic_id"
+                 options="{'no_create_edit': True}"
+                 invisible="not elks_use_graphic"/>
+          <field name="elks_graphic_custom"
+                 widget="image"
+                 filename="elks_graphic_custom_filename"
+                 invisible="not elks_use_graphic"
+                 help="Optional: upload a one-off image just for this event. Overrides the library choice above."/>
+          <field name="elks_graphic_custom_filename" invisible="1"/>
+        </group>
+
+      </xpath>
+    </field>
+  </record>
+
+</odoo>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- List -->
+  <record id="view_elks_publication_list" model="ir.ui.view">
+    <field name="name">elks.calendar.publication.list</field>
+    <field name="model">elks.calendar.publication</field>
+    <field name="arch" type="xml">
+      <list string="Calendar Publications">
+        <field name="name"/>
+        <field name="month"/>
+        <field name="year"/>
+        <field name="theme_id"/>
+        <field name="state" widget="badge"
+               decoration-info="state == 'draft'"
+               decoration-success="state == 'published'"/>
+      </list>
+    </field>
+  </record>
+
+  <!-- Form -->
+  <record id="view_elks_publication_form" model="ir.ui.view">
+    <field name="name">elks.calendar.publication.form</field>
+    <field name="model">elks.calendar.publication</field>
+    <field name="arch" type="xml">
+      <form string="Calendar Publication">
+        <header>
+          <button name="action_render_pdf" type="object" string="Generate PDF"
+                  class="oe_highlight" invisible="state == 'published'"/>
+          <button name="action_publish" type="object" string="Publish"
+                  class="btn-primary" invisible="state == 'published'"
+                  help="Make this calendar live on /elks/calendar. Generates the PDF first if needed."/>
+          <button name="action_unpublish" type="object" string="Unpublish"
+                  invisible="state != 'published'"
+                  help="Revert to Draft. The PDF attachment is kept."/>
+          <button name="action_open_pdf" type="object" string="Open PDF"
+                  invisible="not pdf_attachment_id"/>
+          <field name="state" widget="statusbar"
+                 statusbar_visible="draft,published"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" readonly="1"/></h1>
+          </div>
+          <group>
+            <group string="When">
+              <field name="month"/>
+              <field name="year"/>
+            </group>
+            <group string="Look &amp; Feel">
+              <field name="theme_id"/>
+            </group>
+          </group>
+          <group string="Source">
+            <field name="calendar_id"/>
+            <field name="event_filter_ids" widget="many2many_tags"/>
+          </group>
+          <group string="Header / Footer">
+            <field name="header_title"/>
+            <field name="header_subtitle"/>
+            <field name="footer_text"/>
+          </group>
+          <notebook>
+            <page string="Live Preview">
+              <field name="preview_html" widget="html" readonly="1"/>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- Action + Menu -->
+  <record id="action_elks_publications" model="ir.actions.act_window">
+    <field name="name">Calendar Publications</field>
+    <field name="res_model">elks.calendar.publication</field>
+    <field name="view_mode">list,form</field>
+  </record>
+
+  <menuitem id="menu_elks_calendar_root" name="Elks Calendar"
+            web_icon="elks_calendar_publisher,static/description/icon.png"/>
+  <menuitem id="menu_elks_publications" name="Publications"
+            parent="menu_elks_calendar_root"
+            action="action_elks_publications" sequence="10"/>
+  <menuitem id="menu_elks_themes" name="Themes"
+            parent="menu_elks_calendar_root"
+            action="action_elks_themes" sequence="20"/>
+
+</odoo>

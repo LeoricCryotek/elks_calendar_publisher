@@ -1,0 +1,6 @@
+/* Backend (Odoo app) styles for the publication form preview pane.
+   Kept minimal — the printed PDF gets its real styling from inline CSS
+   in calendar_template.xml so it survives wkhtmltopdf. */
+.o_form_view .o_field_html .elks-cal {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- Landscape US Letter — base only ships a portrait one. -->
+  <record id="paperformat_landscape_letter" model="report.paperformat">
+    <field name="name">Elks Calendar (Landscape Letter)</field>
+    <field name="format">Letter</field>
+    <field name="page_height">0</field>
+    <field name="page_width">0</field>
+    <field name="orientation">Landscape</field>
+    <field name="margin_top">10</field>
+    <field name="margin_bottom">10</field>
+    <field name="margin_left">10</field>
+    <field name="margin_right">10</field>
+    <field name="header_line" eval="False"/>
+    <field name="header_spacing">0</field>
+    <field name="dpi">90</field>
+    <field name="css_margins" eval="True"/>
+  </record>
+
+  <record id="action_report_calendar" model="ir.actions.report">
+    <field name="name">Monthly Calendar</field>
+    <field name="model">elks.calendar.publication</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">elks_calendar_publisher.report_calendar_document</field>
+    <field name="report_file">elks_calendar_publisher.report_calendar_document</field>
+    <field name="paperformat_id" ref="paperformat_landscape_letter"/>
+    <field name="binding_model_id" ref="model_elks_calendar_publication"/>
+    <field name="binding_type">report</field>
+  </record>
+</odoo>

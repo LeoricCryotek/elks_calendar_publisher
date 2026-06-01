@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!--
+    QWeb template that renders one monthly calendar page.
+    Used both as the PDF report body (via ir.actions.report) and as the
+    HTML body of the public /elks/calendar/<id> page.
+
+    NOTE: This template intentionally does NOT call web.external_layout,
+    so there's no company logo / "My Company" header. The calendar is
+    the full page.
+  -->
+  <template id="report_calendar_document">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="pub">
+        <div class="page">
+
+          <style>
+            .elks-cal { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; }
+            .elks-cal .header { display: flex; align-items: center; justify-content: space-between; padding: 0 6px 8px; }
+            .elks-cal .header .month { font-size: 44px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+            .elks-cal .header .deco { font-size: 28px; letter-spacing: 6px; }
+            .elks-cal .header .year { font-size: 44px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+            .elks-cal .day-row { display: grid; grid-template-columns: repeat(7, 1fr); padding: 4px 0 6px; }
+            .elks-cal .day-row div { text-align: center; font-weight: 700; font-size: 14px; }
+            .elks-cal .grid { display: grid; grid-template-columns: repeat(7, 1fr); border: 2px solid #1a1a1a; border-collapse: collapse; }
+            .elks-cal .cell { border-right: 1px solid #1a1a1a; border-bottom: 1px solid #1a1a1a; min-height: 110px; padding: 4px 6px 6px; position: relative; font-size: 11px; line-height: 1.25; box-sizing: border-box; }
+            .elks-cal .cell:nth-child(7n) { border-right: none; }
+            .elks-cal .cell:nth-last-child(-n+7) { border-bottom: none; }
+            .elks-cal .cell.blank { background: #f4f1eb; }
+            .elks-cal .cell .num { font-size: 11px; font-weight: 700; color: #888; }
+            .elks-cal .cell .holiday { font-size: 10.5px; font-style: italic; color: #b04a8a; font-weight: 600; text-align: center; margin-top: -1px; }
+            .elks-cal .cell .banner { text-align: center; margin-top: 4px; }
+            .elks-cal .cell .banner-graphic { width: 32px; height: 32px; display: block; margin: 0 auto 1px; }
+            .elks-cal .cell .banner-headline { font-weight: 800; font-size: 13px; line-height: 1.05; }
+            .elks-cal .cell .banner-sub { font-size: 10.5px; font-weight: 600; margin-top: 1px; }
+            .elks-cal .cell .event-line { font-size: 10.5px; padding-left: 2px; margin-top: 1px; text-align: center; }
+
+            /* Banner colour treatments — match the newsletter reference */
+            .elks-cal .banner-queen_hearts  .banner-headline { color: #c0392b; }
+            .elks-cal .banner-queen_hearts  .banner-sub      { color: #c0392b; }
+            .elks-cal .banner-lodge_meeting .banner-headline { color: #c0392b; }
+            .elks-cal .banner-lodge_meeting .banner-sub      { color: #c0392b; }
+            .elks-cal .banner-church        .banner-headline { color: #1f6f4a; }
+            .elks-cal .banner-church        .banner-sub      { color: #1f6f4a; }
+            .elks-cal .banner-loudmouth     .banner-headline { color: #1a1a1a; }
+            .elks-cal .banner-penny_bingo   .banner-headline { color: #1a1a1a; }
+            .elks-cal .banner-live_music    .banner-headline { color: #6f1d77; }
+            .elks-cal .banner-special       .banner { background: #fff7e6; border: 1px dashed #d49100; padding: 3px; border-radius: 4px; }
+            .elks-cal .banner-special       .banner-headline { color: #b07000; }
+            .elks-cal .banner-closed        .banner-headline { color: #555; font-style: italic; font-weight: 700; }
+
+            .elks-cal .footer-note { margin-top: 6px; padding: 4px 0; font-size: 10px; color: #555; text-align: center; font-style: italic; }
+          </style>
+
+          <main class="elks-cal"
+                t-attf-style="
+                  --accent: #{pub.theme_id.primary_color or '#c0392b'};
+                  --accent-2: #{pub.theme_id.secondary_color or '#1f6f4a'};
+                ">
+
+            <div class="header">
+              <div class="month" t-esc="pub.month_label()"/>
+              <div class="deco">
+                <t t-foreach="pub.month_emojis()" t-as="emoji">
+                  <span t-esc="emoji"/>
+                </t>
+              </div>
+              <div class="year" t-esc="pub.year"/>
+            </div>
+
+            <div class="day-row">
+              <div>Sunday</div><div>Monday</div><div>Tuesday</div>
+              <div>Wednesday</div><div>Thursday</div><div>Friday</div>
+              <div>Saturday</div>
+            </div>
+
+            <div class="grid">
+              <t t-foreach="pub._get_grid_data()" t-as="week">
+                <t t-foreach="week" t-as="cell">
+                  <div t-attf-class="cell #{'blank' if cell['blank'] else ''} #{('has-banner banner-' + cell['top'].elks_banner_style) if cell['top'] else ''}">
+                    <t t-if="not cell['blank']">
+                      <div class="num" t-esc="cell['day']"/>
+                      <t t-set="holiday" t-value="pub.holiday_for_day(cell['day'])"/>
+                      <t t-if="holiday">
+                        <div class="holiday" t-esc="holiday"/>
+                      </t>
+
+                      <t t-if="cell['top']">
+                        <div class="banner">
+                          <t t-if="cell['top'].elks_use_graphic and cell['top'].elks_graphic_id and cell['top'].elks_graphic_id.svg_inline">
+                            <div class="banner-graphic" t-out="cell['top'].elks_graphic_id.svg_inline"/>
+                          </t>
+                          <div class="banner-headline" t-esc="cell['top'].display_banner_label()"/>
+                          <t t-if="cell['top'].elks_banner_sub">
+                            <div class="banner-sub" t-esc="cell['top'].elks_banner_sub"/>
+                          </t>
+                        </div>
+                      </t>
+
+                      <t t-foreach="cell['lines']" t-as="ev">
+                        <div class="event-line" t-esc="ev.name"/>
+                      </t>
+                    </t>
+                  </div>
+                </t>
+              </t>
+            </div>
+
+            <div class="footer-note" t-esc="pub.footer_text"/>
+          </main>
+        </div>
+      </t>
+    </t>
+  </template>
+</odoo>
