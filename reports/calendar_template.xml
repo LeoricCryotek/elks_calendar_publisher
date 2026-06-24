@@ -30,10 +30,14 @@
             .elks-cal .cell .num { font-size: 11px; font-weight: 700; color: #888; }
             .elks-cal .cell .holiday { font-size: 10.5px; font-style: italic; color: #b04a8a; font-weight: 600; text-align: center; margin-top: -1px; }
             .elks-cal .cell .banner { text-align: center; margin-top: 4px; }
-            .elks-cal .cell .banner-graphic { width: 32px; height: 32px; display: block; margin: 0 auto 1px; }
-            .elks-cal .cell .banner-headline { font-weight: 800; font-size: 13px; line-height: 1.05; }
-            .elks-cal .cell .banner-sub { font-size: 10.5px; font-weight: 600; margin-top: 1px; }
-            .elks-cal .cell .event-line { font-size: 10.5px; padding-left: 2px; margin-top: 1px; text-align: center; }
+            /* Banner graphic now renders INLINE next to the headline text
+               instead of stacking above it. Time displays first. */
+            .elks-cal .cell .banner-graphic { display: inline-block; vertical-align: middle; line-height: 0; margin: -2px 3px 0 0; }
+            .elks-cal .cell .banner-graphic svg { width: 16px; height: 16px; display: inline-block; vertical-align: middle; }
+            .elks-cal .cell .banner-headline { font-weight: 800; font-size: 12px; line-height: 1.15; }
+            .elks-cal .cell .banner-sub { font-size: 10px; font-weight: 600; margin-top: 1px; }
+            .elks-cal .cell .event-time { font-weight: 700; color: #555; margin-right: 3px; }
+            .elks-cal .cell .event-line { font-size: 10px; padding-left: 2px; margin-top: 1px; text-align: center; }
 
             /* Banner colour treatments — match the newsletter reference */
             .elks-cal .banner-queen_hearts  .banner-headline { color: #c0392b; }
@@ -87,10 +91,20 @@
 
                       <t t-if="cell['top']">
                         <div class="banner">
-                          <t t-if="cell['top'].elks_use_graphic and cell['top'].elks_graphic_id and cell['top'].elks_graphic_id.svg_inline">
-                            <div class="banner-graphic" t-out="cell['top'].elks_graphic_id.svg_inline"/>
-                          </t>
-                          <div class="banner-headline" t-esc="cell['top'].display_banner_label()"/>
+                          <!-- Time first, then inline icon, then headline.
+                               All inside .banner-headline so they share a
+                               single line/baseline and the icon sits
+                               vertically centered with the text. -->
+                          <div class="banner-headline">
+                            <t t-set="t" t-value="cell['top'].display_time()"/>
+                            <t t-if="t">
+                              <span class="event-time" t-esc="t"/>
+                            </t>
+                            <t t-if="cell['top'].elks_use_graphic and cell['top'].elks_graphic_id and cell['top'].elks_graphic_id.svg_inline">
+                              <span class="banner-graphic" t-out="cell['top'].elks_graphic_id.svg_inline"/>
+                            </t>
+                            <span t-esc="cell['top'].display_banner_label()"/>
+                          </div>
                           <t t-if="cell['top'].elks_banner_sub">
                             <div class="banner-sub" t-esc="cell['top'].elks_banner_sub"/>
                           </t>
@@ -98,7 +112,13 @@
                       </t>
 
                       <t t-foreach="cell['lines']" t-as="ev">
-                        <div class="event-line" t-esc="ev.name"/>
+                        <div class="event-line">
+                          <t t-set="t" t-value="ev.display_time()"/>
+                          <t t-if="t">
+                            <span class="event-time" t-esc="t"/>
+                          </t>
+                          <t t-esc="ev.name"/>
+                        </div>
                       </t>
                     </t>
                   </div>

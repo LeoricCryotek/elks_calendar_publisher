@@ -101,6 +101,24 @@ class CalendarEventBanner(models.Model):
         self.ensure_one()
         return self.elks_banner_label or self.name or ""
 
+    def display_time(self):
+        """Return the event's start time formatted as e.g. '6:15pm', '7pm',
+        '8:15am'. Returns an empty string for all-day events or events
+        without a start time. Times are converted from UTC storage to the
+        current user's timezone for display.
+        """
+        self.ensure_one()
+        if not self.start or self.allday:
+            return ""
+        local = fields.Datetime.context_timestamp(self, self.start)
+        hour = local.hour
+        minute = local.minute
+        am_pm = "am" if hour < 12 else "pm"
+        hour12 = hour % 12 or 12
+        if minute == 0:
+            return f"{hour12}{am_pm}"
+        return f"{hour12}:{minute:02d}{am_pm}"
+
     def is_banner(self):
         self.ensure_one()
         return self.elks_banner_style and self.elks_banner_style != "none"
