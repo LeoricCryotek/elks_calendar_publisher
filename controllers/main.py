@@ -5,9 +5,15 @@ Public-facing routes:
   * /elks/calendar                  -- latest published month
   * /elks/calendar/json/<year>/<m>  -- JSON feed used by the website widget
   * /elks/calendar/graphic/<event>  -- per-event graphic (SVG or binary)
+
+The JSON feed returns enough metadata for the JS widget to render a fully
+themed calendar that matches the printed PDF: month name, year,
+seasonal/holiday emoji strip, theme primary/secondary colours, holiday
+labels per day, and a formatted time string on every event.
 """
+import calendar as pycal
 import json
-from datetime import date
+from datetime import date, datetime, time
 
 from odoo import http
 from odoo.http import request
@@ -38,14 +44,49 @@ class ElksCalendarController(http.Controller):
     @http.route("/elks/calendar/json/<int:year>/<int:month>",
                 type="http", auth="public", csrf=False)
     def calendar_json(self, year, month, **kw):
-        """Feed the embeddable widget. Returns events grouped by day."""
+        """Feed the embeddable widget. Returns events grouped by day plus
+        enough header metadata (month name, year, emoji strip, theme
+        colours, holiday labels) for the widget to render an unstyled
+        page into a themed calendar."""
         first = date(year, month, 1)
         if month == 12:
             last = date(year + 1, 1, 1)
         else:
             last = date(year, month + 1, 1)
+
+        # Look up the matching publication (if any) so we can pick up its
+        # theme. If none exists for this month/year, create a transient
+        # (in-memory) record so we can still call the helpers.
+        Pub = request.env["elks.calendar.publication"].sudo()
+        pub = Pub.search([
+            ("year", "=", str(year)),
+            ("month", "=", str(month)),
+        ], limit=1)
+        if not pub:
+            pub = Pub.new({
+                "year": str(year),
+                "month": str(month),
+            })
+
+        theme = pub.theme_id if pub.theme_id else None
+        emojis = pub.month_emojis()
+
+        # Per-day holiday labels for the month.
+        days_in_month = pycal.monthrange(year, month)[1]
+        holidays = {}
+        for d in range(1, days_in_month + 1):
+            label = pub.holiday_for_day(d)
+            if label:
+                holidays[str(d)] = label
+
+        # Events — datetime bounds so late-evening events get caught too.
+        start_dt = datetime.combine(first, time.min)
+        end_dt = datetime.combine(last, time.min)
         Event = request.env["calendar.event"].sudo()
-        events = Event.search([("start", ">=", first), ("start", "<", last)])
+        events = Event.search([
+            ("start", ">=", start_dt),
+            ("start", "<", end_dt),
+        ])
         payload = []
         for ev in events:
             graphic = ev.effective_graphic() if hasattr(ev, "effective_graphic") else None
@@ -54,6 +95,8 @@ class ElksCalendarController(http.Controller):
                 "name": ev.name,
                 "start": ev.start.isoformat() if ev.start else None,
                 "stop": ev.stop.isoformat() if ev.stop else None,
+                "time": ev.display_time() if hasattr(ev, "display_time") else "",
+                "allday": bool(getattr(ev, "allday", False)),
                 "banner_style": ev.elks_banner_style or "none",
                 "banner_label": ev.display_banner_label() if ev.is_banner() else "",
                 "banner_sub": ev.elks_banner_sub or "",
@@ -61,8 +104,24 @@ class ElksCalendarController(http.Controller):
                 "graphic_url": (f"/elks/calendar/graphic/{ev.id}"
                                 if graphic else ""),
             })
+
         return request.make_response(
-            json.dumps({"year": year, "month": month, "events": payload}),
+            json.dumps({
+                "year": year,
+                "month": month,
+                "month_name": pycal.month_name[month],
+                "emojis": emojis,
+                "theme": {
+                    "primary": theme.primary_color if theme else "#c0392b",
+                    "secondary": theme.secondary_color if theme else "#1f6f4a",
+                    "name": theme.name if theme else "",
+                },
+                "holidays": holidays,
+                "events": payload,
+                "header_title": pub.header_title or "",
+                "header_subtitle": pub.header_subtitle or "",
+                "footer_text": pub.footer_text or "",
+            }),
             headers=[("Content-Type", "application/json")],
         )
 

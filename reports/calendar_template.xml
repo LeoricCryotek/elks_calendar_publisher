@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <!--
-    QWeb template that renders one monthly calendar page.
-    Used both as the PDF report body (via ir.actions.report) and as the
-    HTML body of the public /elks/calendar/<id> page.
+    Two-template structure:
 
-    NOTE: This template intentionally does NOT call web.external_layout,
-    so there's no company logo / "My Company" header. The calendar is
-    the full page.
+    * report_calendar_body  - the page body alone (the .page div with the
+      grid, header, styles). Used by the in-form Live Preview and by the
+      public website page (which is already wrapped in website.layout).
+
+    * report_calendar_document - wraps the body in web.html_container so
+      the PDF renderer gets a complete <!DOCTYPE html>...</html> document.
+
+    Why the split: rendering report_calendar_document straight into the
+    HTML field used by the Live Preview crashed Odoo's readonly HTML
+    widget (retargetLinks → null ownerDocument) because injecting a full
+    HTML document into a fragment context confuses the DOM parser.
   -->
-  <template id="report_calendar_document">
-    <t t-call="web.html_container">
-      <t t-foreach="docs" t-as="pub">
-        <div class="page">
+
+  <!-- =================================================================
+       Inner body — reusable fragment
+       ================================================================= -->
+  <template id="report_calendar_body">
+    <div class="page">
 
           <style>
             .elks-cal { font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; }
@@ -129,6 +137,17 @@
             <div class="footer-note" t-esc="pub.footer_text"/>
           </main>
         </div>
+  </template>
+
+  <!-- =================================================================
+       Outer wrapper — only the PDF report uses this.
+       Wraps the body in web.html_container so wkhtmltopdf/chrome get a
+       complete HTML document with doctype, html, and body.
+       ================================================================= -->
+  <template id="report_calendar_document">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="pub">
+        <t t-call="elks_calendar_publisher.report_calendar_body"/>
       </t>
     </t>
   </template>

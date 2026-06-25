@@ -76,8 +76,17 @@ class ElksCalendarPublication(models.Model):
 
     @api.depends("month", "year", "theme_id", "calendar_id", "event_filter_ids")
     def _compute_preview_html(self):
-        """Render a small HTML preview using the same QWeb template the PDF
-        uses, so editors can see what they're about to publish."""
+        """Render a small HTML preview using the same QWeb body the PDF
+        uses, so editors can see what they're about to publish.
+
+        Render the BODY template only — not report_calendar_document —
+        because the body is a fragment that fits inside an HTML field.
+        report_calendar_document wraps the body in web.html_container,
+        which would inject a full <!DOCTYPE html>...</html> string into
+        the field and crash Odoo's readonly HTML widget (retargetLinks
+        sees a null ownerDocument when full-document HTML is parsed in
+        a fragment context).
+        """
         for rec in self:
             if not rec.theme_id:
                 rec.preview_html = (
@@ -86,8 +95,8 @@ class ElksCalendarPublication(models.Model):
                 continue
             try:
                 rec.preview_html = self.env["ir.qweb"]._render(
-                    "elks_calendar_publisher.report_calendar_document",
-                    {"docs": rec},
+                    "elks_calendar_publisher.report_calendar_body",
+                    {"pub": rec},
                 )
             except Exception as exc:
                 rec.preview_html = (

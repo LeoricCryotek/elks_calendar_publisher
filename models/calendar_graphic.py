@@ -34,6 +34,7 @@ class ElksCalendarGraphic(models.Model):
             ("penny_bingo", "Bingo at the Lodge"),
             ("lodge_meeting", "Lodge Meeting"),
             ("live_music", "Live Music"),
+            ("karaoke", "Karaoke"),
             ("church", "Grace Bible Church"),
             ("special", "Special Event"),
             ("closed", "Lodge Closed"),

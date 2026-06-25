@@ -23,6 +23,7 @@ BANNER_STYLE = [
     ("penny_bingo",   "🎱 Bingo at the Lodge (bold, centered)"),
     ("lodge_meeting", "Lodge Meeting (red banner)"),
     ("live_music",    "🎵 Live Music (accent banner)"),
+    ("karaoke",       "🎤 Karaoke (accent banner)"),
     ("church",        "⛪ Grace Bible Church (green, centered)"),
     ("special",       "★ Special Event (highlighted box)"),
     ("closed",        "Lodge Closed (gray, centered)"),

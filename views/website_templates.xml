@@ -13,13 +13,15 @@
                class="btn btn-outline-secondary">Download PDF</a>
           </header>
           <!--
-            The same QWeb template that drives the PDF report renders here
+            The same QWeb body that drives the PDF report renders here
             scaled to the responsive container width. CSS in
             website_calendar.scss handles small-screen stacking.
+
+            Calls the BODY template, not report_calendar_document — this
+            page is already inside website.layout, so wrapping with
+            web.html_container would produce nested <html> tags.
           -->
-          <t t-call="elks_calendar_publisher.report_calendar_document">
-            <t t-set="docs" t-value="pub"/>
-          </t>
+          <t t-call="elks_calendar_publisher.report_calendar_body"/>
         </section>
       </div>
     </t>

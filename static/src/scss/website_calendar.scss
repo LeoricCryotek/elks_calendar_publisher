@@ -1,71 +1,168 @@
 /*
  * Public-website calendar widget styles.
- * Mirrors the printed calendar look, scaled responsive.
+ * Theme colours come from the publication's theme record via CSS custom
+ * properties --accent / --accent-2 set inline by website_calendar.js.
+ * Mirrors the printed-PDF layout (calendar_template.xml) as closely as
+ * the responsive container allows.
  */
 .s_elks_calendar {
-  --accent: #c0392b;
-  --accent-2: #1f6f4a;
+  .elks-cal-widget {
+    --accent: #c0392b;
+    --accent-2: #1f6f4a;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    color: #1a1a1a;
+  }
 
+  /* Header strip — JUNE [emojis] 2026 */
+  .elks-cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px 8px;
+    .month {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+    .year {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+    .deco {
+      font-size: 20px;
+      letter-spacing: 4px;
+      text-align: center;
+    }
+  }
+
+  /* Day-of-week labels */
+  .elks-cal-day-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    padding: 4px 0;
+    div {
+      text-align: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+  }
+
+  /* The 7-column grid */
   .elks-cal-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    border: 1px solid #2b1b1b;
-    border-radius: 4px;
-    overflow: hidden;
+    border: 2px solid #1a1a1a;
     background: #fff;
   }
-  .head {
-    background: #fafafa;
-    text-align: center;
-    font-weight: 600;
-    padding: 6px 0;
-    border-bottom: 1px solid #e4e4e4;
-    font-size: 13px;
-  }
+
   .cell {
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    padding: 6px;
-    min-height: 90px;
+    border-right: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+    min-height: 100px;
+    padding: 4px 6px 6px;
+    position: relative;
     font-size: 11px;
     line-height: 1.25;
+    box-sizing: border-box;
   }
   .cell:nth-child(7n) { border-right: none; }
-  .num {
-    color: #888;
-    font-weight: 700;
-    font-size: 11px;
-    margin-bottom: 2px;
-  }
-  .banner-block { text-align: center; margin-top: 6px; }
-  .banner-graphic { width: 36px; height: 36px; display: block; margin: 0 auto 2px; }
-  .banner-headline { font-weight: 800; font-size: 14px; line-height: 1.1; }
-  .banner-sub { font-size: 10px; font-weight: 600; }
+  .cell.blank { background: #f4f1eb; }
 
-  /* Banner color themes */
-  .banner-queen_hearts .banner-headline { color: var(--accent); }
-  .banner-lodge_meeting .banner-headline { color: var(--accent); }
-  .banner-church .banner-headline { color: var(--accent-2); }
-  .banner-loudmouth .banner-headline { color: #2b2b2b; }
-  .banner-penny_bingo .banner-headline { color: #2b2b2b; }
-  .banner-special .banner-block {
+  .cell .num {
+    font-size: 11px;
+    font-weight: 700;
+    color: #888;
+  }
+
+  /* Holiday label — absolute-positioned at top, between num and right edge */
+  .cell .holiday {
+    position: absolute;
+    top: 4px;
+    left: 22px;
+    right: 6px;
+    text-align: center;
+    font-size: 10px;
+    font-style: italic;
+    color: #b04a8a;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  /* Time pill — small, bold, gray. Sits BEFORE the event name. */
+  .cell .event-time {
+    font-weight: 700;
+    color: #555;
+    margin-right: 3px;
+  }
+
+  /* Banner: inline icon + headline on the same line */
+  .cell .banner { text-align: center; margin-top: 4px; }
+  .cell .banner-headline {
+    font-weight: 800;
+    font-size: 12px;
+    line-height: 1.15;
+  }
+  .cell .banner-graphic {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    vertical-align: middle;
+    margin: -2px 3px 0 0;
+  }
+  .cell .banner-sub {
+    font-size: 10px;
+    font-weight: 600;
+    margin-top: 1px;
+  }
+
+  /* Standard event line */
+  .cell .event-line {
+    font-size: 10.5px;
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  /* Per-banner colour treatments (match the print template) */
+  .cell.banner-queen_hearts  .banner-headline,
+  .cell.banner-queen_hearts  .banner-sub      { color: #c0392b; }
+  .cell.banner-lodge_meeting .banner-headline,
+  .cell.banner-lodge_meeting .banner-sub      { color: #c0392b; }
+  .cell.banner-church        .banner-headline,
+  .cell.banner-church        .banner-sub      { color: #1f6f4a; }
+  .cell.banner-loudmouth     .banner-headline { color: #1a1a1a; }
+  .cell.banner-penny_bingo   .banner-headline { color: #1a1a1a; }
+  .cell.banner-live_music    .banner-headline,
+  .cell.banner-karaoke       .banner-headline { color: #6f1d77; }
+  .cell.banner-special       .banner {
     background: #fff7e6;
     border: 1px dashed #d49100;
     padding: 4px;
     border-radius: 4px;
   }
-  .banner-closed .banner-headline {
-    color: #777;
+  .cell.banner-special       .banner-headline { color: #b07000; }
+  .cell.banner-closed        .banner-headline {
+    color: #555;
     font-style: italic;
-    font-weight: 600;
+    font-weight: 700;
   }
 
-  /* Responsive — stack to a list on mobile */
+  .elks-cal-footer {
+    margin-top: 6px;
+    padding: 4px 0;
+    font-size: 10px;
+    color: #555;
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* Responsive — stack to a list on phones */
   @media (max-width: 600px) {
-    .elks-cal-grid {
-      grid-template-columns: 1fr;
-    }
-    .head { display: none; }
+    .elks-cal-grid { grid-template-columns: 1fr; }
+    .elks-cal-day-row { display: none; }
     .cell { min-height: 0; border-right: none; }
+    .cell.blank { display: none; }
   }
 }

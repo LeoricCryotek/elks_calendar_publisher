@@ -59,6 +59,29 @@
     ]]></field>
   </record>
 
+  <record id="graphic_karaoke" model="elks.calendar.graphic">
+    <field name="name">Karaoke (microphone)</field>
+    <field name="code">karaoke</field>
+    <field name="suggested_banner_style">karaoke</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- microphone head -->
+        <ellipse cx="50" cy="36" rx="20" ry="24" fill="#2b2b2b"/>
+        <ellipse cx="50" cy="36" rx="14" ry="18" fill="#555"/>
+        <!-- grille lines -->
+        <line x1="42" y1="22" x2="42" y2="50" stroke="#aaa" stroke-width="1"/>
+        <line x1="50" y1="18" x2="50" y2="54" stroke="#aaa" stroke-width="1"/>
+        <line x1="58" y1="22" x2="58" y2="50" stroke="#aaa" stroke-width="1"/>
+        <line x1="36" y1="36" x2="64" y2="36" stroke="#aaa" stroke-width="1"/>
+        <!-- stem -->
+        <rect x="46" y="58" width="8" height="18" fill="#2b2b2b"/>
+        <!-- base -->
+        <rect x="32" y="74" width="36" height="6" rx="2" fill="#2b2b2b"/>
+      </svg>
+    ]]></field>
+  </record>
+
   <record id="graphic_live_music" model="elks.calendar.graphic">
     <field name="name">Live Music (treble clef)</field>
     <field name="code">live_music</field>
