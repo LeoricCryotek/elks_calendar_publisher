@@ -82,17 +82,27 @@ class ElksCalendarController(http.Controller):
         # Events — datetime bounds so late-evening events get caught too.
         start_dt = datetime.combine(first, time.min)
         end_dt = datetime.combine(last, time.min)
+        # display_time / display_day on calendar.event already convert to
+        # the LODGE_TZ constant defined in models/calendar_event.py — no
+        # per-user-timezone variation. No `with_context(tz=...)` needed
+        # here.
         Event = request.env["calendar.event"].sudo()
+        # Sort by start ascending — the JS widget re-sorts defensively
+        # but a sorted payload also keeps the JSON debuggable.
         events = Event.search([
             ("start", ">=", start_dt),
             ("start", "<", end_dt),
-        ])
+        ], order="start asc")
         payload = []
         for ev in events:
             graphic = ev.effective_graphic() if hasattr(ev, "effective_graphic") else None
             payload.append({
                 "id": ev.id,
                 "name": ev.name,
+                # day is the day-of-month in the lodge's TZ, server-computed
+                # so the widget doesn't need to do timezone math on a naive
+                # ISO datetime string.
+                "day": ev.display_day() if hasattr(ev, "display_day") else None,
                 "start": ev.start.isoformat() if ev.start else None,
                 "stop": ev.stop.isoformat() if ev.stop else None,
                 "time": ev.display_time() if hasattr(ev, "display_time") else "",
@@ -122,7 +132,15 @@ class ElksCalendarController(http.Controller):
                 "header_subtitle": pub.header_subtitle or "",
                 "footer_text": pub.footer_text or "",
             }),
-            headers=[("Content-Type", "application/json")],
+            headers=[
+                ("Content-Type", "application/json"),
+                # No-cache so a freshly-saved event time shows up on the
+                # next page refresh instead of being served from the
+                # browser's or any CDN's cached response.
+                ("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0"),
+                ("Pragma", "no-cache"),
+                ("Expires", "0"),
+            ],
         )
 
     @http.route("/elks/calendar/graphic/<int:event_id>",

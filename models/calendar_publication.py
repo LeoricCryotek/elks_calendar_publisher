@@ -183,10 +183,13 @@ class ElksCalendarPublication(models.Model):
         ]
         if self.calendar_id:
             domain.append(("user_id", "=", self.calendar_id.id))
-        events = self.env["calendar.event"].search(domain) | self.event_filter_ids
+        # Sort by start ascending so each day's events render in
+        # chronological order (earliest time first).
+        events = self.env["calendar.event"].search(domain, order="start asc") | self.event_filter_ids
         days_in_month = pycal.monthrange(int(self.year), int(self.month))[1]
         buckets = {d: [] for d in range(1, days_in_month + 1)}
-        for ev in events:
+        # Iterate in start-ascending order so each bucket is itself sorted.
+        for ev in events.sorted(key=lambda e: e.start or False):
             if not ev.start:
                 continue
             day = ev.start.day
@@ -238,16 +241,23 @@ class ElksCalendarPublication(models.Model):
             standard = [e for e in events if not e.is_banner()]
             top = None
             if banners:
+                # Highest-priority banner wins the cell's top spot.
                 banners.sort(key=lambda e: -(e.elks_banner_priority or 0))
                 top = banners[0]
                 secondary = banners[1:]
             else:
                 secondary = []
+            # All non-top events render below in chronological order
+            # (earliest time first), regardless of banner vs standard.
+            lines = sorted(
+                standard + secondary,
+                key=lambda e: e.start or False,
+            )
             cells.append({
                 "day": day,
                 "blank": False,
                 "top": top,
-                "lines": standard + secondary,
+                "lines": lines,
             })
 
         # Pad to 42 cells (6 full weeks)

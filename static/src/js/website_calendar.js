@@ -45,12 +45,30 @@ publicWidget.registry.ElksCalendarWidget = publicWidget.Widget.extend({
     },
 
     _render(data, showGraphics) {
-        // Group events by day-of-month for cell rendering.
+        // Group events by day-of-month for cell rendering. The JSON feed
+        // already sorts events by start ascending, but re-sort here too
+        // so a hand-edited or out-of-order payload still renders
+        // chronologically (earliest time first within each day).
+        //
+        // IMPORTANT: bucket by ev.day (server-computed day-of-month in
+        // the lodge's timezone), NOT by new Date(ev.start).getDate().
+        // The start string is sent as a naive ISO datetime so JavaScript
+        // would interpret it as local-browser time and place 6pm Pacific
+        // events on the wrong day for any visitor outside Pacific.
         const byDay = {};
         (data.events || []).forEach(ev => {
-            if (!ev.start) return;
-            const d = new Date(ev.start).getDate();
+            const d = (ev.day != null)
+                ? ev.day
+                : (ev.start ? new Date(ev.start).getDate() : null);
+            if (!d) return;
             (byDay[d] = byDay[d] || []).push(ev);
+        });
+        Object.values(byDay).forEach(list => {
+            list.sort((a, b) => {
+                const ta = a.start ? new Date(a.start).getTime() : 0;
+                const tb = b.start ? new Date(b.start).getTime() : 0;
+                return ta - tb;
+            });
         });
 
         const firstWeekday = new Date(data.year, data.month - 1, 1).getDay();

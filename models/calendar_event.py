@@ -13,7 +13,14 @@ Banner styles map to CSS classes in the calendar template. Adding a new
 style is one row in BANNER_STYLE + one CSS rule + (optionally) one
 stock graphic record.
 """
+import pytz
+
 from odoo import api, fields, models
+
+# Fallback used only if the system parameter hasn't been set yet (fresh
+# install before anyone visits Settings). After a Lodge picks their
+# timezone from the Settings page it lives in ir.config_parameter.
+_DEFAULT_LODGE_TZ = "America/Los_Angeles"
 
 
 BANNER_STYLE = [
@@ -102,16 +109,43 @@ class CalendarEventBanner(models.Model):
         self.ensure_one()
         return self.elks_banner_label or self.name or ""
 
+    @api.model
+    def _get_lodge_tz(self):
+        """Read the Lodge's configured timezone from the system parameter.
+        The Lodge sets this in Settings > General Settings > Elks Calendar.
+        Falls back to the install-time default when the parameter is
+        unset (fresh install) or unrecognized."""
+        tz_name = (
+            self.env["ir.config_parameter"].sudo().get_param(
+                "elks_calendar_publisher.lodge_tz",
+                _DEFAULT_LODGE_TZ,
+            )
+        )
+        if tz_name not in pytz.all_timezones_set:
+            tz_name = _DEFAULT_LODGE_TZ
+        return tz_name
+
+    def _to_lodge_local(self):
+        """Convert the event's UTC start to the lodge's local timezone.
+        Stored datetimes in Odoo are always UTC; this is the single place
+        we hop into local time so display_time/display_day always agree.
+        """
+        self.ensure_one()
+        if not self.start:
+            return None
+        utc_dt = self.start.replace(tzinfo=pytz.utc)
+        return utc_dt.astimezone(pytz.timezone(self._get_lodge_tz()))
+
     def display_time(self):
         """Return the event's start time formatted as e.g. '6:15pm', '7pm',
         '8:15am'. Returns an empty string for all-day events or events
-        without a start time. Times are converted from UTC storage to the
-        current user's timezone for display.
+        without a start time. Always in the LODGE's local timezone — no
+        per-user-timezone variation.
         """
         self.ensure_one()
         if not self.start or self.allday:
             return ""
-        local = fields.Datetime.context_timestamp(self, self.start)
+        local = self._to_lodge_local()
         hour = local.hour
         minute = local.minute
         am_pm = "am" if hour < 12 else "pm"
@@ -119,6 +153,16 @@ class CalendarEventBanner(models.Model):
         if minute == 0:
             return f"{hour12}{am_pm}"
         return f"{hour12}:{minute:02d}{am_pm}"
+
+    def display_day(self):
+        """Day-of-month for this event's start, in lodge local time.
+        Sent to the widget so the widget doesn't have to do any timezone
+        math on a naive ISO string (which JS would otherwise parse as the
+        visitor's browser-local time and get wrong).
+        """
+        self.ensure_one()
+        local = self._to_lodge_local()
+        return local.day if local else None
 
     def is_banner(self):
         self.ensure_one()

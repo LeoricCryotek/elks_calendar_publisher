@@ -25,7 +25,7 @@ Includes:
     "author": "Danny Santiago",
     "website": "https://dannysantiago.info",
     "category": "Productivity/Calendar",
-    "version": "19.0.0.3",
+    "version": "19.0.0.5",
     "depends": [
         "base",
         "calendar",
@@ -42,6 +42,7 @@ Includes:
         "views/publication_views.xml",
         "views/graphic_views.xml",
         "views/calendar_event_views.xml",
+        "views/res_config_settings_views.xml",
         # reports must register the action before any view that binds to it
         "reports/publication_report.xml",
         "reports/calendar_template.xml",
