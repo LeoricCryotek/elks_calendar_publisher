@@ -5,7 +5,9 @@ and the system renders a printable monthly calendar PDF.
 """
 import base64
 import calendar as pycal
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
+
+import pytz
 
 from odoo import api, fields, models
 
@@ -170,16 +172,33 @@ class ElksCalendarPublication(models.Model):
     # -- Internals --------------------------------------------------------
 
     def _fetch_events_for_month(self):
-        """Return {day_int: [event_records, ...]} for the publication month."""
+        """Return {day_int: [event_records, ...]} for the publication month.
+
+        Timezone-aware: month bounds are computed in LODGE local time and
+        converted to UTC for the DB query. Bucketing uses each event's
+        lodge-local day (via display_day). Without this, evening events
+        on the last day of the month leak into the next month's UTC date
+        and get either excluded or bucketed under the wrong day.
+        """
         self.ensure_one()
         first, last = self._month_bounds()
-        # Datetime bounds so we catch every event that starts inside the
-        # month, even late-evening ones.
-        start_dt = datetime.combine(first, time.min)
-        end_dt = datetime.combine(last, time.max)
+
+        # Lodge-local window: midnight on the 1st through midnight of the
+        # first-of-next-month. Convert to UTC-naive (Odoo Datetime storage
+        # is always UTC).
+        lodge_tz = pytz.timezone(
+            self.env["calendar.event"]._get_lodge_tz()
+        )
+        local_start = lodge_tz.localize(datetime.combine(first, time.min))
+        local_end = lodge_tz.localize(
+            datetime.combine(last + timedelta(days=1), time.min)
+        )
+        utc_start = local_start.astimezone(pytz.utc).replace(tzinfo=None)
+        utc_end = local_end.astimezone(pytz.utc).replace(tzinfo=None)
+
         domain = [
-            ("start", ">=", start_dt),
-            ("start", "<=", end_dt),
+            ("start", ">=", utc_start),
+            ("start", "<", utc_end),
         ]
         if self.calendar_id:
             domain.append(("user_id", "=", self.calendar_id.id))
@@ -196,7 +215,9 @@ class ElksCalendarPublication(models.Model):
         for ev in events.sorted(key=lambda e: (e.start or False, (e.name or "").lower())):
             if not ev.start:
                 continue
-            day = ev.start.day
+            # Lodge-local day — NOT ev.start.day (which is UTC day and
+            # would mis-place any 5pm+ Pacific event onto the next date).
+            day = ev.display_day()
             if day in buckets:
                 buckets[day].append(ev)
         return buckets

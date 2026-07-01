@@ -13,7 +13,9 @@ labels per day, and a formatted time string on every event.
 """
 import calendar as pycal
 import json
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
+
+import pytz
 
 from odoo import http
 from odoo.http import request
@@ -53,6 +55,16 @@ class ElksCalendarController(http.Controller):
             last = date(year + 1, 1, 1)
         else:
             last = date(year, month + 1, 1)
+        # Convert the [first, last) local-time window into UTC-naive
+        # bounds because Odoo stores calendar.event.start as UTC. Without
+        # this, an event at 5:30 PM on the last day of the month in
+        # Pacific time (00:30 UTC of the FIRST OF NEXT MONTH) would fall
+        # outside a naive "start < last" filter and get dropped.
+        lodge_tz = pytz.timezone(
+            request.env["calendar.event"]._get_lodge_tz()
+        )
+        local_start_bound = lodge_tz.localize(datetime.combine(first, time.min))
+        local_end_bound = lodge_tz.localize(datetime.combine(last, time.min))
 
         # Look up the matching publication (if any) so we can pick up its
         # theme. If none exists for this month/year, create a transient
@@ -79,9 +91,11 @@ class ElksCalendarController(http.Controller):
             if label:
                 holidays[str(d)] = label
 
-        # Events — datetime bounds so late-evening events get caught too.
-        start_dt = datetime.combine(first, time.min)
-        end_dt = datetime.combine(last, time.min)
+        # Events — UTC bounds converted from the lodge-local window
+        # computed above, so late-evening events on the last day of the
+        # month don't spill into the next UTC date and get dropped.
+        start_dt = local_start_bound.astimezone(pytz.utc).replace(tzinfo=None)
+        end_dt = local_end_bound.astimezone(pytz.utc).replace(tzinfo=None)
         # display_time / display_day on calendar.event already convert to
         # the LODGE_TZ constant defined in models/calendar_event.py — no
         # per-user-timezone variation. No `with_context(tz=...)` needed
