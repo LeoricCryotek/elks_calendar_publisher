@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <!--
+    Built-in banner styles. Codes match the strings previously hardcoded
+    in BANNER_STYLE (models/calendar_event.py) so any existing events
+    keep working through the refactor. Lodges can add their own styles
+    via Elks Calendar > Configuration > Banner Styles > New.
+  -->
+
+  <record id="banner_style_none" model="elks.calendar.banner.style">
+    <field name="name">Standard event</field>
+    <field name="code">none</field>
+    <field name="description">plain text line</field>
+    <field name="color">#1a1a1a</field>
+    <field name="sequence">0</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_queen_hearts" model="elks.calendar.banner.style">
+    <field name="name">♥ Queen of Hearts</field>
+    <field name="code">queen_hearts</field>
+    <field name="description">red, centered</field>
+    <field name="color">#c0392b</field>
+    <field name="sequence">10</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_loudmouth" model="elks.calendar.banner.style">
+    <field name="name">👄 Loudmouth Bingo</field>
+    <field name="code">loudmouth</field>
+    <field name="description">bold, centered</field>
+    <field name="color">#1a1a1a</field>
+    <field name="sequence">20</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_penny_bingo" model="elks.calendar.banner.style">
+    <field name="name">🎱 Bingo at the Lodge</field>
+    <field name="code">penny_bingo</field>
+    <field name="description">bold, centered</field>
+    <field name="color">#1a1a1a</field>
+    <field name="sequence">30</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_lodge_meeting" model="elks.calendar.banner.style">
+    <field name="name">Lodge Meeting</field>
+    <field name="code">lodge_meeting</field>
+    <field name="description">red banner</field>
+    <field name="color">#c0392b</field>
+    <field name="sequence">40</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_live_music" model="elks.calendar.banner.style">
+    <field name="name">🎵 Live Music</field>
+    <field name="code">live_music</field>
+    <field name="description">purple accent</field>
+    <field name="color">#6f1d77</field>
+    <field name="sequence">50</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_karaoke" model="elks.calendar.banner.style">
+    <field name="name">🎤 Karaoke</field>
+    <field name="code">karaoke</field>
+    <field name="description">purple accent</field>
+    <field name="color">#6f1d77</field>
+    <field name="sequence">60</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_church" model="elks.calendar.banner.style">
+    <field name="name">⛪ Grace Bible Church</field>
+    <field name="code">church</field>
+    <field name="description">green, centered</field>
+    <field name="color">#1f6f4a</field>
+    <field name="sequence">70</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_special" model="elks.calendar.banner.style">
+    <field name="name">★ Special Event</field>
+    <field name="code">special</field>
+    <field name="description">highlighted box</field>
+    <field name="color">#b07000</field>
+    <field name="is_highlighted_box">True</field>
+    <field name="sequence">80</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_closed" model="elks.calendar.banner.style">
+    <field name="name">Lodge Closed</field>
+    <field name="code">closed</field>
+    <field name="description">gray, italic, centered</field>
+    <field name="color">#555555</field>
+    <field name="is_italic">True</field>
+    <field name="sequence">90</field>
+    <field name="is_stock">True</field>
+  </record>
+
+</odoo>

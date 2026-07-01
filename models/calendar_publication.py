@@ -183,13 +183,17 @@ class ElksCalendarPublication(models.Model):
         ]
         if self.calendar_id:
             domain.append(("user_id", "=", self.calendar_id.id))
-        # Sort by start ascending so each day's events render in
-        # chronological order (earliest time first).
-        events = self.env["calendar.event"].search(domain, order="start asc") | self.event_filter_ids
+        # Sort by (start asc, name asc) so each day's events render in
+        # chronological order first, then alphabetical for events sharing
+        # the same start time.
+        events = self.env["calendar.event"].search(
+            domain, order="start asc, name asc",
+        ) | self.event_filter_ids
         days_in_month = pycal.monthrange(int(self.year), int(self.month))[1]
         buckets = {d: [] for d in range(1, days_in_month + 1)}
-        # Iterate in start-ascending order so each bucket is itself sorted.
-        for ev in events.sorted(key=lambda e: e.start or False):
+        # Belt-and-suspenders sort so pinned event_filter_ids merge in
+        # cleanly with the query results.
+        for ev in events.sorted(key=lambda e: (e.start or False, (e.name or "").lower())):
             if not ev.start:
                 continue
             day = ev.start.day
@@ -248,10 +252,10 @@ class ElksCalendarPublication(models.Model):
             else:
                 secondary = []
             # All non-top events render below in chronological order
-            # (earliest time first), regardless of banner vs standard.
+            # (earliest time first), then alphabetical for ties.
             lines = sorted(
                 standard + secondary,
-                key=lambda e: e.start or False,
+                key=lambda e: (e.start or False, (e.name or "").lower()),
             )
             cells.append({
                 "day": day,

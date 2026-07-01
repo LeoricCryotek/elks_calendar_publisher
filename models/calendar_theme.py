@@ -26,9 +26,13 @@ class ElksCalendarTheme(models.Model):
         default=0,
     )
     is_stock = fields.Boolean(
+        string="Built-in",
         default=False,
         readonly=True,
-        help="True for themes shipped with the module. Cannot be deleted.",
+        help="True for themes that ship with the module as defaults. "
+             "Built-in themes are protected from being overwritten on "
+             "module upgrade. Themes you create yourself should stay "
+             "unticked.",
     )
 
     # v19 declarative constraint syntax (replaces _sql_constraints list).

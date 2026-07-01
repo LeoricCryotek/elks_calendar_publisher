@@ -65,9 +65,15 @@ publicWidget.registry.ElksCalendarWidget = publicWidget.Widget.extend({
         });
         Object.values(byDay).forEach(list => {
             list.sort((a, b) => {
+                // Primary: earliest start time first.
                 const ta = a.start ? new Date(a.start).getTime() : 0;
                 const tb = b.start ? new Date(b.start).getTime() : 0;
-                return ta - tb;
+                if (ta !== tb) return ta - tb;
+                // Secondary: alphabetical by name (case-insensitive)
+                // so events sharing a start time render in a stable
+                // predictable order.
+                return (a.name || "").toLowerCase()
+                    .localeCompare((b.name || "").toLowerCase());
             });
         });
 
@@ -118,9 +124,17 @@ publicWidget.registry.ElksCalendarWidget = publicWidget.Widget.extend({
                 html += `<div class="holiday">${this._escape(holiday)}</div>`;
             }
 
-            // Banner — time first, inline icon, headline.
+            // Banner — time first, inline icon, headline. Colour comes
+            // from the banner_style record via the banner_color field, so
+            // any user-added style paints correctly without SCSS.
             if (banner) {
-                html += `<div class="banner"><div class="banner-headline">`;
+                const boxStyle = banner.banner_box
+                    ? "background:#fff7e6;border:1px dashed #d49100;padding:3px;border-radius:4px;"
+                    : "";
+                const italicStyle = banner.banner_italic ? "font-style:italic;" : "";
+                const color = banner.banner_color || "#1a1a1a";
+                html += `<div class="banner" style="${boxStyle}">`;
+                html += `<div class="banner-headline" style="color:${color};${italicStyle}">`;
                 if (banner.time) {
                     html += `<span class="event-time">${this._escape(banner.time)}</span> `;
                 }
@@ -130,7 +144,7 @@ publicWidget.registry.ElksCalendarWidget = publicWidget.Widget.extend({
                 html += this._escape(banner.banner_label || banner.name);
                 html += `</div>`;
                 if (banner.banner_sub) {
-                    html += `<div class="banner-sub">${this._escape(banner.banner_sub)}</div>`;
+                    html += `<div class="banner-sub" style="color:${color};">${this._escape(banner.banner_sub)}</div>`;
                 }
                 html += `</div>`;
             }

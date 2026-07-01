@@ -25,7 +25,7 @@ Includes:
     "author": "Danny Santiago",
     "website": "https://dannysantiago.info",
     "category": "Productivity/Calendar",
-    "version": "19.0.0.5",
+    "version": "19.0.0.8",
     "depends": [
         "base",
         "calendar",
@@ -40,14 +40,18 @@ Includes:
         # which graphic_views references — so theme → publication → graphic.
         "views/theme_views.xml",
         "views/publication_views.xml",
+        "views/banner_style_views.xml",
         "views/graphic_views.xml",
         "views/calendar_event_views.xml",
         "views/res_config_settings_views.xml",
         # reports must register the action before any view that binds to it
         "reports/publication_report.xml",
         "reports/calendar_template.xml",
-        # stock data depends on theme/graphic models being installed
+        # stock data depends on theme/graphic/banner-style models being installed.
+        # Banner styles load BEFORE graphics because graphic records reference
+        # banner style codes via the suggested_banner_style Selection.
         "data/stock_themes.xml",
+        "data/stock_banner_styles.xml",
         "data/stock_graphics.xml",
         # website pieces last
         "views/website_templates.xml",

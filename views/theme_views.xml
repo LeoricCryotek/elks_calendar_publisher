@@ -11,7 +11,7 @@
         <field name="applies_to_month"/>
         <field name="primary_color" widget="color"/>
         <field name="secondary_color" widget="color"/>
-        <field name="is_stock" widget="boolean_toggle" readonly="1"/>
+        <field name="is_stock" widget="boolean_toggle" readonly="1" string="Built-in"/>
       </list>
     </field>
   </record>
@@ -31,7 +31,7 @@
             <field name="header_font"/>
             <field name="decor_svg" filename="decor_filename"/>
             <field name="decor_filename" invisible="1"/>
-            <field name="is_stock" readonly="1"/>
+            <field name="is_stock" readonly="1" string="Built-in"/>
           </group>
         </sheet>
       </form>

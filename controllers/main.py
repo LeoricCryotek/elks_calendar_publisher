@@ -87,12 +87,14 @@ class ElksCalendarController(http.Controller):
         # per-user-timezone variation. No `with_context(tz=...)` needed
         # here.
         Event = request.env["calendar.event"].sudo()
-        # Sort by start ascending — the JS widget re-sorts defensively
-        # but a sorted payload also keeps the JSON debuggable.
+        # Sort by (start asc, name asc) so events sharing a start time
+        # render alphabetically after chronological. The JS widget
+        # re-sorts defensively but a sorted payload also keeps the JSON
+        # debuggable.
         events = Event.search([
             ("start", ">=", start_dt),
             ("start", "<", end_dt),
-        ], order="start asc")
+        ], order="start asc, name asc")
         payload = []
         for ev in events:
             graphic = ev.effective_graphic() if hasattr(ev, "effective_graphic") else None
@@ -110,9 +112,22 @@ class ElksCalendarController(http.Controller):
                 "banner_style": ev.elks_banner_style or "none",
                 "banner_label": ev.display_banner_label() if ev.is_banner() else "",
                 "banner_sub": ev.elks_banner_sub or "",
+                # Colour + box + italic sourced from the elks.calendar.banner.style
+                # record — so a lodge that adds a new banner style via the GUI
+                # gets it fully styled on the widget with no code change.
+                "banner_color": ev.banner_color() if ev.is_banner() else "",
+                "banner_box": ev.banner_is_box() if ev.is_banner() else False,
+                "banner_italic": ev.banner_is_italic() if ev.is_banner() else False,
                 "has_graphic": bool(graphic),
-                "graphic_url": (f"/elks/calendar/graphic/{ev.id}"
-                                if graphic else ""),
+                # For FA-icon graphics, send the class + colour directly
+                # so the JS renders an <i> tag inline — no image endpoint
+                # round-trip needed. For SVG/binary, keep the URL.
+                "fa_class": graphic.get("fa_class", "") if graphic else "",
+                "fa_color": graphic.get("fa_color", "") if graphic else "",
+                "graphic_url": (
+                    f"/elks/calendar/graphic/{ev.id}"
+                    if graphic and "fa_class" not in graphic else ""
+                ),
             })
 
         return request.make_response(

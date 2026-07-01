@@ -23,32 +23,28 @@ from odoo import api, fields, models
 _DEFAULT_LODGE_TZ = "America/Los_Angeles"
 
 
-BANNER_STYLE = [
-    ("none",          "Standard event"),
-    ("queen_hearts",  "♥ Queen of Hearts (red, centered)"),
-    ("loudmouth",     "👄 Loudmouth Bingo (bold, centered)"),
-    ("penny_bingo",   "🎱 Bingo at the Lodge (bold, centered)"),
-    ("lodge_meeting", "Lodge Meeting (red banner)"),
-    ("live_music",    "🎵 Live Music (accent banner)"),
-    ("karaoke",       "🎤 Karaoke (accent banner)"),
-    ("church",        "⛪ Grace Bible Church (green, centered)"),
-    ("special",       "★ Special Event (highlighted box)"),
-    ("closed",        "Lodge Closed (gray, centered)"),
-]
-
-
 class CalendarEventBanner(models.Model):
     _inherit = "calendar.event"
 
     # -- Banner -----------------------------------------------------------
+    #
+    # elks_banner_style is a dynamic Selection whose options come from
+    # elks.calendar.banner.style records. Adding a Banner Style record
+    # via Elks Calendar > Configuration > Banner Styles makes the new
+    # option appear here on the next form load — no code changes.
 
     elks_banner_style = fields.Selection(
-        BANNER_STYLE,
+        selection="_get_banner_style_selection",
         default="none",
         string="Calendar Banner",
         help="If set, this event visually dominates its day cell on the "
-             "published monthly calendar.",
+             "published monthly calendar. Add or edit the available options "
+             "at Elks Calendar > Configuration > Banner Styles.",
     )
+
+    @api.model
+    def _get_banner_style_selection(self):
+        return self.env["elks.calendar.banner.style"].get_selection_options()
     elks_banner_label = fields.Char(
         string="Banner Label",
         help="Optional short headline shown on the calendar (e.g. "
@@ -154,6 +150,78 @@ class CalendarEventBanner(models.Model):
             return f"{hour12}{am_pm}"
         return f"{hour12}:{minute:02d}{am_pm}"
 
+    # -- Default Location from FRS Lodge Settings ------------------------
+    #
+    # When a user creates a new event on the "Source User Calendar" of a
+    # publication (i.e. this user is set as calendar_id on any
+    # elks.calendar.publication record), pre-fill the Location field with
+    # the lodge's mailing address stored in the FRS module's
+    # elks.lodge.settings singleton. The user can clear or change it for
+    # off-site events; this just saves entry time for the common case.
+    #
+    # Personal calendar users whose account isn't a source calendar for
+    # any publication do NOT get the autofill — their private events stay
+    # blank as before.
+    #
+    # Only fires when both FRS and a lodge-tied publication exist. The
+    # env.get() guard makes elks_calendar_publisher install/run cleanly
+    # even without elksfrs.
+
+    @api.model
+    def default_get(self, fields_list):
+        vals = super().default_get(fields_list)
+        if "location" in fields_list and not vals.get("location"):
+            if self._is_lodge_source_user_calendar():
+                addr = self._get_lodge_address_from_frs()
+                if addr:
+                    vals["location"] = addr
+        return vals
+
+    @api.model
+    def _is_lodge_source_user_calendar(self):
+        """True when the current user is set as the Source User Calendar
+        on any elks.calendar.publication. That's the signal that events
+        created by this user belong to the lodge's calendar and should
+        default to the lodge's address.
+        """
+        target_user_id = self.env.context.get("default_user_id") or self.env.uid
+        Pub = self.env.get("elks.calendar.publication")
+        if Pub is None:
+            return False
+        return bool(Pub.sudo().search_count([
+            ("calendar_id", "=", target_user_id),
+        ]))
+
+    @api.model
+    def _get_lodge_address_from_frs(self):
+        """Assemble the Lodge's mailing address from elksfrs's
+        elks.lodge.settings singleton. Returns None if the model isn't
+        registered (FRS not installed) or the singleton has no address.
+        """
+        Settings = self.env.get("elks.lodge.settings")
+        if Settings is None:
+            return None
+        settings = Settings.sudo().search([], limit=1)
+        if not settings:
+            return None
+        street = (settings.lodge_address or "").strip()
+        city = (settings.lodge_city or "").strip()
+        state = (settings.lodge_state or "").strip()
+        zip_code = (settings.lodge_zip or "").strip()
+        if not (street or city or state or zip_code):
+            return None
+        # "3444 10th St, Lewiston, ID 83501"
+        tail_parts = []
+        if city:
+            tail_parts.append(city)
+        state_zip = " ".join(p for p in (state, zip_code) if p)
+        if state_zip:
+            tail_parts.append(state_zip)
+        tail = ", ".join(tail_parts)
+        if street and tail:
+            return f"{street}, {tail}"
+        return street or tail
+
     def display_day(self):
         """Day-of-month for this event's start, in lodge local time.
         Sent to the widget so the widget doesn't have to do any timezone
@@ -168,18 +236,57 @@ class CalendarEventBanner(models.Model):
         self.ensure_one()
         return self.elks_banner_style and self.elks_banner_style != "none"
 
+    # -- Banner style helpers ----------------------------------------
+    def _banner_style_rec(self):
+        """Return the elks.calendar.banner.style record for this event's
+        code, or empty recordset if code is 'none' / not found. Used by
+        QWeb/JSON/JS so colour and box/italic styling can travel with
+        the event without duplicating rules in SCSS."""
+        self.ensure_one()
+        if not self.elks_banner_style or self.elks_banner_style == "none":
+            return self.env["elks.calendar.banner.style"]
+        return self.env["elks.calendar.banner.style"].sudo().search(
+            [("code", "=", self.elks_banner_style)], limit=1,
+        )
+
+    def banner_color(self):
+        rec = self._banner_style_rec()
+        return rec.color if rec else ""
+
+    def banner_is_box(self):
+        rec = self._banner_style_rec()
+        return bool(rec.is_highlighted_box) if rec else False
+
+    def banner_is_italic(self):
+        rec = self._banner_style_rec()
+        return bool(rec.is_italic) if rec else False
+
     def effective_graphic(self):
-        """Return the bytes / SVG / record that should be rendered for
-        this event, honoring the use_graphic toggle and custom override."""
+        """Return the bytes / SVG / Font Awesome icon / uploaded image
+        that should be rendered for this event, honouring the use_graphic
+        toggle and custom override.
+
+        Priority order:
+          1. Per-event custom binary upload (elks_graphic_custom)
+          2. Library graphic's inline SVG
+          3. Library graphic's Font Awesome icon + colour
+          4. Library graphic's uploaded image (binary)
+        """
         self.ensure_one()
         if not self.elks_use_graphic:
             return None
         if self.elks_graphic_custom:
             return {"binary": self.elks_graphic_custom,
                     "filename": self.elks_graphic_custom_filename}
-        if self.elks_graphic_id and self.elks_graphic_id.svg_inline:
-            return {"svg": self.elks_graphic_id.svg_inline}
-        if self.elks_graphic_id and self.elks_graphic_id.image:
-            return {"binary": self.elks_graphic_id.image,
-                    "filename": self.elks_graphic_id.image_filename}
+        g = self.elks_graphic_id
+        if g and g.svg_inline:
+            return {"svg": g.svg_inline}
+        if g and g.fa_icon:
+            return {
+                "fa_class": g.fa_icon_class(),
+                "fa_color": g.fa_color or "#c0392b",
+            }
+        if g and g.image:
+            return {"binary": g.image,
+                    "filename": g.image_filename}
         return None

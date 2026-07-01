@@ -9,7 +9,7 @@
         <field name="name"/>
         <field name="code"/>
         <field name="suggested_banner_style"/>
-        <field name="is_stock" widget="boolean_toggle" readonly="1"/>
+        <field name="is_stock" widget="boolean_toggle" readonly="1" string="Built-in"/>
       </list>
     </field>
   </record>
@@ -21,14 +21,62 @@
       <form>
         <sheet>
           <group>
-            <field name="name"/>
-            <field name="code"/>
-            <field name="suggested_banner_style"/>
-            <field name="image" widget="image" filename="image_filename"/>
-            <field name="image_filename" invisible="1"/>
-            <field name="svg_inline" widget="ace" options="{'mode': 'xml'}"/>
-            <field name="is_stock" readonly="1"/>
+            <group>
+              <field name="name"/>
+              <field name="code"/>
+              <field name="suggested_banner_style"/>
+              <field name="is_stock" readonly="1" string="Built-in"/>
+            </group>
+            <group string="Live Preview">
+              <!--
+                preview_html is a compute-triggered field that renders
+                the icon (or SVG, or upload placeholder) at its target
+                colour so the editor sees the change as they type.
+                Priority order matches effective_graphic: inline SVG >
+                Font Awesome icon > uploaded image.
+              -->
+              <field name="preview_html" nolabel="1" widget="html" readonly="1"/>
+            </group>
           </group>
+
+          <notebook>
+            <page string="Font Awesome Icon" name="fa">
+              <group>
+                <field name="fa_icon"
+                       placeholder="e.g. music, star, microphone, gift, flag, heart"/>
+                <field name="fa_color" widget="color"/>
+              </group>
+              <div class="alert alert-info" role="alert">
+                <p>
+                  Pick any icon from the
+                  <a href="https://fontawesome.com/v4/icons/" target="_blank">Font Awesome 4 icon library</a>
+                  and enter just its name (drop the <code>fa-</code> prefix). Music, star,
+                  microphone, gift, flag, heart, calendar, gavel, glass, etc. — all built in.
+                </p>
+                <p>The colour picker sets the icon's colour on both the printed calendar and the website widget.</p>
+              </div>
+            </page>
+
+            <page string="Inline SVG" name="svg">
+              <field name="svg_inline" widget="ace" options="{'mode': 'xml'}"
+                     placeholder="&lt;svg viewBox='0 0 100 100'&gt;...&lt;/svg&gt;"/>
+              <div class="alert alert-secondary small" role="alert">
+                Optional. Custom inline SVG. If set, this wins over the Font Awesome icon above.
+                Useful for hand-drawn or brand-specific graphics that no icon library covers.
+              </div>
+            </page>
+
+            <page string="Uploaded Image" name="img">
+              <group>
+                <field name="image" widget="image" filename="image_filename"/>
+                <field name="image_filename" invisible="1"/>
+              </group>
+              <div class="alert alert-secondary small" role="alert">
+                Fallback binary image. Used only if neither an inline SVG nor a Font
+                Awesome icon is set.
+              </div>
+            </page>
+          </notebook>
         </sheet>
       </form>
     </field>
