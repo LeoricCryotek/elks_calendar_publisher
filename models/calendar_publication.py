@@ -238,9 +238,13 @@ class ElksCalendarPublication(models.Model):
         dict with:
           * day:      integer day number, or None for blank padding cells
           * blank:    True if this cell is outside the current month
-          * top:      the highest-priority banner event for the day, or None
-          * lines:    remaining standard + secondary banner events, as a
-                      list of calendar.event records
+          * events:   the day's events (chronological), as calendar.event
+                      records — the template reads cell['events']
+
+        NOTE: earlier revisions exposed 'top'/'lines' keys; the template now
+        reads a single 'events' list. If a deployed server still renders the
+        old template it raises KeyError: 'top' — upgrade this module so the
+        template and this builder match.
 
         Week starts on Sunday to match the template header.
         """
