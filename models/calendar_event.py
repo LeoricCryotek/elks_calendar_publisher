@@ -82,6 +82,87 @@ class CalendarEventBanner(models.Model):
     )
     elks_graphic_custom_filename = fields.Char()
 
+    # -- Lodge Calendar Event flag ---------------------------------------
+    #
+    # Convenience toggle on the event form. When ticked and saved, Odoo
+    # auto-assigns the Source User Calendar (from any elks.calendar.
+    # publication) as the event's organizer AND adds them as an attendee.
+    # That way the event shows up on the Lodge Calendar publication
+    # regardless of who created it.
+    elks_is_lodge_event = fields.Boolean(
+        string="Lodge Calendar Event",
+        default=False,
+        help="Tick to publish this event on the Lodge Calendar. Odoo will "
+             "set the Source User Calendar user (from Elks Calendar → "
+             "Publications) as the organizer of this event and add them "
+             "as an attendee, so the event surfaces on the printed "
+             "newsletter and the website widget.",
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("elks_is_lodge_event"):
+                self._apply_lodge_calendar_assignment(vals)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        result = super().write(vals)
+        # If the checkbox was JUST turned on, apply the assignment to
+        # each affected record.
+        if vals.get("elks_is_lodge_event"):
+            lodge_user = self._get_lodge_calendar_user()
+            if lodge_user:
+                for rec in self:
+                    update = {}
+                    if not rec.user_id or rec.user_id != lodge_user:
+                        update["user_id"] = lodge_user.id
+                    partner_ids = rec.partner_ids.ids
+                    if lodge_user.partner_id.id not in partner_ids:
+                        update["partner_ids"] = [(4, lodge_user.partner_id.id)]
+                    if update:
+                        # Skip our create/write hook to avoid recursion.
+                        super(CalendarEventBanner, rec).write(update)
+        return result
+
+    @api.model
+    def _apply_lodge_calendar_assignment(self, vals):
+        """Mutate a create-vals dict so the event is owned + attended by
+        the Lodge Calendar user."""
+        lodge_user = self._get_lodge_calendar_user()
+        if not lodge_user:
+            return
+        vals.setdefault("user_id", lodge_user.id)
+        existing = vals.get("partner_ids", [])
+        # partner_ids may already be a list of command tuples; append.
+        partner_id = lodge_user.partner_id.id
+        already = False
+        for cmd in existing:
+            if isinstance(cmd, (list, tuple)) and len(cmd) >= 2:
+                if cmd[1] == partner_id or (
+                    cmd[0] == 6 and partner_id in (cmd[2] or [])
+                ):
+                    already = True
+                    break
+            elif cmd == partner_id:
+                already = True
+                break
+        if not already:
+            existing = list(existing) + [(4, partner_id)]
+            vals["partner_ids"] = existing
+
+    @api.model
+    def _get_lodge_calendar_user(self):
+        """Return the res.users configured as Source User Calendar on any
+        publication. If more than one, the first-created wins."""
+        Pub = self.env.get("elks.calendar.publication")
+        if Pub is None:
+            return None
+        pub = Pub.sudo().search([
+            ("calendar_id", "!=", False),
+        ], order="id asc", limit=1)
+        return pub.calendar_id if pub else None
+
     # -- Onchange ---------------------------------------------------------
 
     @api.onchange("elks_banner_style")
@@ -260,6 +341,14 @@ class CalendarEventBanner(models.Model):
     def banner_is_italic(self):
         rec = self._banner_style_rec()
         return bool(rec.is_italic) if rec else False
+
+    def banner_symbol(self):
+        """Leading emoji/symbol from the banner style's name — used by
+        the calendar template and website widget as the inline icon so
+        the dropdown label and the calendar render display identically.
+        Empty string when the banner style's name is a plain word."""
+        rec = self._banner_style_rec()
+        return rec.leading_symbol() if rec else ""
 
     def effective_graphic(self):
         """Return the bytes / SVG / Font Awesome icon / uploaded image

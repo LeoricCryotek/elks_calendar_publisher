@@ -39,12 +39,17 @@
             .elks-cal table.grid-table td.cell {
               border: 1px solid #1a1a1a;
               vertical-align: top;
+              /* Cells auto-grow to fit content. height on a table cell
+                 already behaves as min-height per CSS 2.1, so overflowing
+                 days push the row taller instead of clipping. */
               height: 110px;
               padding: 4px 6px 6px;
               font-size: 11px;
               line-height: 1.25;
               position: relative;
               width: 14.28%;
+              overflow: visible;
+              word-wrap: break-word;
             }
             .elks-cal table.grid-table td.cell.blank { background: #f4f1eb; }
 
@@ -91,7 +96,7 @@
                 <t t-foreach="pub._get_grid_data()" t-as="week">
                   <tr>
                     <t t-foreach="week" t-as="cell">
-                      <td t-attf-class="cell #{'blank' if cell['blank'] else ''} #{('has-banner banner-' + cell['top'].elks_banner_style) if cell['top'] else ''}">
+                      <td t-attf-class="cell #{'blank' if cell['blank'] else ''}">
                         <t t-if="not cell['blank']">
                           <div class="num" t-esc="cell['day']"/>
                           <t t-set="holiday" t-value="pub.holiday_for_day(cell['day'])"/>
@@ -99,40 +104,50 @@
                             <div class="holiday" t-esc="holiday"/>
                           </t>
 
-                          <t t-if="cell['top']">
-                            <t t-set="_box" t-value="cell['top'].banner_is_box()"/>
-                            <t t-set="_italic" t-value="cell['top'].banner_is_italic()"/>
-                            <t t-set="_color" t-value="cell['top'].banner_color() or '#1a1a1a'"/>
-                            <div t-attf-class="banner #{'banner-box' if _box else ''}"
-                                 t-attf-style="#{'background:#fff7e6;border:1px dashed #d49100;padding:3px;border-radius:4px;' if _box else ''}">
-                              <div class="banner-headline"
-                                   t-attf-style="color: #{_color}; #{'font-style:italic;' if _italic else ''}">
-                                <t t-set="t" t-value="cell['top'].display_time()"/>
-                                <t t-if="t">
-                                  <span class="event-time" t-esc="t"/>
-                                </t>
-                                <t t-if="cell['top'].elks_use_graphic and cell['top'].elks_graphic_id and cell['top'].elks_graphic_id.svg_inline">
-                                  <span class="banner-graphic" t-out="cell['top'].elks_graphic_id.svg_inline"/>
-                                </t>
-                                <t t-elif="cell['top'].elks_use_graphic and cell['top'].elks_graphic_id and cell['top'].elks_graphic_id.fa_icon">
-                                  <i t-att-class="cell['top'].elks_graphic_id.fa_icon_class()"
-                                     t-attf-style="color: #{cell['top'].elks_graphic_id.fa_color or '#c0392b'}; font-size: 14px; margin-right: 3px; vertical-align: middle;"/>
-                                </t>
-                                <span t-esc="cell['top'].display_banner_label()"/>
-                              </div>
-                              <t t-if="cell['top'].elks_banner_sub">
-                                <div class="banner-sub" t-esc="cell['top'].elks_banner_sub"/>
-                              </t>
-                            </div>
-                          </t>
+                          <!-- Every event renders in its own chronological
+                               slot. Banner-styled events (Karaoke, Queen of
+                               Hearts, etc.) use their configured colour /
+                               inline icon / box treatment but stay in time
+                               order alongside standard events. -->
+                          <t t-foreach="cell['events']" t-as="ev">
+                            <t t-set="_is_banner" t-value="ev.is_banner()"/>
+                            <t t-set="_box" t-value="_is_banner and ev.banner_is_box()"/>
+                            <t t-set="_italic" t-value="_is_banner and ev.banner_is_italic()"/>
+                            <t t-set="_color" t-value="ev.banner_color() if _is_banner else ''"/>
+                            <t t-set="_time" t-value="ev.display_time()"/>
 
-                          <t t-foreach="cell['lines']" t-as="ev">
-                            <div class="event-line">
-                              <t t-set="t" t-value="ev.display_time()"/>
-                              <t t-if="t">
-                                <span class="event-time" t-esc="t"/>
+                            <div t-attf-class="event-line #{'banner-line' if _is_banner else ''}"
+                                 t-attf-style="#{'background:#fff7e6;border:1px dashed #d49100;padding:3px;border-radius:4px;margin-top:2px;' if _box else ''}
+                                               #{('color:' + _color + ';font-weight:800;') if _is_banner else ''}
+                                               #{'font-style:italic;' if _italic else ''}">
+                              <t t-if="_time">
+                                <span t-attf-class="event-time"
+                                      t-attf-style="#{('color:' + _color + ';') if _is_banner else ''}"
+                                      t-esc="_time"/>
                               </t>
-                              <t t-esc="ev.name"/>
+                              <!-- Icon priority (matches the dropdown display first):
+                                   1. Emoji from the banner style's name (dropdown + calendar match exactly)
+                                   2. Inline SVG from the linked graphic (advanced)
+                                   3. Font Awesome icon from the linked graphic (advanced) -->
+                              <t t-set="_symbol" t-value="ev.banner_symbol() if _is_banner else ''"/>
+                              <t t-if="_symbol">
+                                <span class="banner-symbol"
+                                      style="margin-right: 3px; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Symbola', sans-serif;"
+                                      t-esc="_symbol"/>
+                              </t>
+                              <t t-elif="_is_banner and ev.elks_use_graphic and ev.elks_graphic_id and ev.elks_graphic_id.svg_inline">
+                                <span class="banner-graphic" t-out="ev.elks_graphic_id.svg_inline"/>
+                              </t>
+                              <t t-elif="_is_banner and ev.elks_use_graphic and ev.elks_graphic_id and ev.elks_graphic_id.fa_icon">
+                                <i t-att-class="ev.elks_graphic_id.fa_icon_class()"
+                                   t-attf-style="color: #{ev.elks_graphic_id.fa_color or '#c0392b'}; font-size: 12px; margin-right: 3px; vertical-align: middle;"/>
+                              </t>
+                              <span t-esc="ev.display_banner_label() if _is_banner else ev.name"/>
+                              <t t-if="_is_banner and ev.elks_banner_sub">
+                                <div class="banner-sub"
+                                     t-attf-style="color: #{_color};"
+                                     t-esc="ev.elks_banner_sub"/>
+                              </t>
                             </div>
                           </t>
                         </t>

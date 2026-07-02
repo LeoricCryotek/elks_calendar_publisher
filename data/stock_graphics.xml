@@ -125,6 +125,43 @@
     ]]></field>
   </record>
 
+  <record id="graphic_antler_meeting" model="elks.calendar.graphic">
+    <field name="name">Antler Meeting (antlers)</field>
+    <field name="code">antler_meeting</field>
+    <field name="suggested_banner_style">antler_meeting</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- left antler -->
+        <path d="M40 60 L30 42 L22 46 L28 30 L18 32 L26 20 L36 30 L34 42 L44 50 Z"
+              fill="#6f1d77" stroke="#4a1451" stroke-width="1"/>
+        <!-- right antler -->
+        <path d="M60 60 L70 42 L78 46 L72 30 L82 32 L74 20 L64 30 L66 42 L56 50 Z"
+              fill="#6f1d77" stroke="#4a1451" stroke-width="1"/>
+        <!-- deer face -->
+        <ellipse cx="50" cy="70" rx="14" ry="18" fill="#a67c52"/>
+        <!-- eyes -->
+        <circle cx="45" cy="66" r="2" fill="#2b1b1b"/>
+        <circle cx="55" cy="66" r="2" fill="#2b1b1b"/>
+        <!-- nose -->
+        <ellipse cx="50" cy="78" rx="3" ry="2" fill="#2b1b1b"/>
+      </svg>
+    ]]></field>
+  </record>
+
+  <record id="graphic_music_bingo" model="elks.calendar.graphic">
+    <field name="name">Music Bingo (note)</field>
+    <field name="code">music_bingo</field>
+    <field name="suggested_banner_style">music_bingo</field>
+    <field name="is_stock">True</field>
+    <field name="svg_inline"><![CDATA[
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <text x="50" y="80" text-anchor="middle"
+              font-family="Georgia,serif" font-size="80" fill="#b07000">♫</text>
+      </svg>
+    ]]></field>
+  </record>
+
   <record id="graphic_special" model="elks.calendar.graphic">
     <field name="name">Special Event (star)</field>
     <field name="code">special</field>

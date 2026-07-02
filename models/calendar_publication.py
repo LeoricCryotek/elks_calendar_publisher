@@ -257,37 +257,26 @@ class ElksCalendarPublication(models.Model):
 
         # Leading blanks before day 1
         for _ in range(leading_blanks):
-            cells.append({"day": None, "blank": True, "top": None, "lines": []})
+            cells.append({"day": None, "blank": True, "events": []})
 
-        # Real days
+        # Real days — every event renders in its own chronological slot,
+        # regardless of banner style. The banner styling (color, icon,
+        # box) is applied inline where each event actually appears in the
+        # day's timeline. No more "banner owns the cell" concept.
         for day in range(1, days_in_month + 1):
-            events = list(buckets.get(day, []))
-            banners = [e for e in events if e.is_banner()]
-            standard = [e for e in events if not e.is_banner()]
-            top = None
-            if banners:
-                # Highest-priority banner wins the cell's top spot.
-                banners.sort(key=lambda e: -(e.elks_banner_priority or 0))
-                top = banners[0]
-                secondary = banners[1:]
-            else:
-                secondary = []
-            # All non-top events render below in chronological order
-            # (earliest time first), then alphabetical for ties.
-            lines = sorted(
-                standard + secondary,
+            events = sorted(
+                buckets.get(day, []),
                 key=lambda e: (e.start or False, (e.name or "").lower()),
             )
             cells.append({
                 "day": day,
                 "blank": False,
-                "top": top,
-                "lines": lines,
+                "events": events,
             })
 
         # Pad to 42 cells (6 full weeks)
         while len(cells) < 42:
-            cells.append({"day": None, "blank": True, "top": None, "lines": []})
+            cells.append({"day": None, "blank": True, "events": []})
 
         # Slice into weeks
         return [cells[i:i + 7] for i in range(0, 42, 7)]

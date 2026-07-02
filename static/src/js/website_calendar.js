@@ -109,53 +109,53 @@ publicWidget.registry.ElksCalendarWidget = publicWidget.Widget.extend({
         }
 
         // ── Day cells ────────────────────────────────────────────────
+        // Every event renders in its own chronological slot. Banner-styled
+        // events (Karaoke, Queen of Hearts, etc.) keep their colour /
+        // inline icon / box treatment but stay in time order.
         for (let day = 1; day <= daysIn; day++) {
             const events = byDay[day] || [];
-            const banner = events.find(e => e.banner_style && e.banner_style !== "none");
             const holiday = (data.holidays || {})[String(day)] || "";
-            const cellClass = banner
-                ? `cell has-banner banner-${banner.banner_style}`
-                : "cell";
 
-            html += `<div class="${cellClass}">
+            html += `<div class="cell">
                        <div class="num">${day}</div>`;
 
             if (holiday) {
                 html += `<div class="holiday">${this._escape(holiday)}</div>`;
             }
 
-            // Banner — time first, inline icon, headline. Colour comes
-            // from the banner_style record via the banner_color field, so
-            // any user-added style paints correctly without SCSS.
-            if (banner) {
-                const boxStyle = banner.banner_box
-                    ? "background:#fff7e6;border:1px dashed #d49100;padding:3px;border-radius:4px;"
+            events.forEach(e => {
+                const isBanner = e.banner_style && e.banner_style !== "none";
+                const color = e.banner_color || "";
+                const boxStyle = e.banner_box
+                    ? "background:#fff7e6;border:1px dashed #d49100;padding:3px;border-radius:4px;margin-top:2px;"
                     : "";
-                const italicStyle = banner.banner_italic ? "font-style:italic;" : "";
-                const color = banner.banner_color || "#1a1a1a";
-                html += `<div class="banner" style="${boxStyle}">`;
-                html += `<div class="banner-headline" style="color:${color};${italicStyle}">`;
-                if (banner.time) {
-                    html += `<span class="event-time">${this._escape(banner.time)}</span> `;
-                }
-                if (showGraphics && banner.has_graphic) {
-                    html += `<img class="banner-graphic" src="${banner.graphic_url}" alt=""/>`;
-                }
-                html += this._escape(banner.banner_label || banner.name);
-                html += `</div>`;
-                if (banner.banner_sub) {
-                    html += `<div class="banner-sub" style="color:${color};">${this._escape(banner.banner_sub)}</div>`;
-                }
-                html += `</div>`;
-            }
+                const bannerColorStyle = isBanner
+                    ? `color:${color || "#1a1a1a"};font-weight:800;`
+                    : "";
+                const italicStyle = e.banner_italic ? "font-style:italic;" : "";
+                const lineStyle = `${boxStyle}${bannerColorStyle}${italicStyle}`;
 
-            // Remaining events as small lines — time first, then name.
-            events.filter(e => e !== banner).forEach(e => {
-                html += `<div class="event-line">`;
+                html += `<div class="event-line${isBanner ? " banner-line" : ""}" style="${lineStyle}">`;
                 if (e.time) {
-                    html += `<span class="event-time">${this._escape(e.time)}</span> `;
+                    const timeColor = isBanner && color ? `style="color:${color};"` : "";
+                    html += `<span class="event-time" ${timeColor}>${this._escape(e.time)}</span> `;
                 }
-                html += this._escape(e.name);
+                // Icon priority: emoji from the banner style name first
+                // (matches the backend dropdown exactly), then FA icon,
+                // then image URL from the graphic library.
+                if (isBanner && e.banner_symbol) {
+                    html += `<span class="banner-symbol" style="margin-right:3px;">${this._escape(e.banner_symbol)}</span>`;
+                } else if (isBanner && showGraphics && e.has_graphic) {
+                    if (e.fa_class) {
+                        html += `<i class="${this._escape(e.fa_class)}" style="color:${e.fa_color || color || "#c0392b"};font-size:12px;margin-right:3px;vertical-align:middle;"></i>`;
+                    } else {
+                        html += `<img class="banner-graphic" src="${e.graphic_url}" alt=""/>`;
+                    }
+                }
+                html += this._escape(isBanner ? (e.banner_label || e.name) : e.name);
+                if (isBanner && e.banner_sub) {
+                    html += `<div class="banner-sub" style="color:${color};">${this._escape(e.banner_sub)}</div>`;
+                }
                 html += `</div>`;
             });
 

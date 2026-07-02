@@ -62,11 +62,17 @@
     border-right: 1px solid #1a1a1a;
     border-bottom: 1px solid #1a1a1a;
     min-height: 100px;
+    /* Grow taller when a day has many events instead of clipping. In CSS
+       Grid all cells in a row will match the tallest, so a busy week
+       gets uniformly tall cells and nothing bleeds off. */
+    height: auto;
     padding: 4px 6px 6px;
     position: relative;
     font-size: 11px;
     line-height: 1.25;
     box-sizing: border-box;
+    overflow: visible;
+    word-wrap: break-word;
   }
   .cell:nth-child(7n) { border-right: none; }
   .cell.blank { background: #f4f1eb; }

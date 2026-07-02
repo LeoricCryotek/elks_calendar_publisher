@@ -132,6 +132,9 @@ class ElksCalendarController(http.Controller):
                 "banner_color": ev.banner_color() if ev.is_banner() else "",
                 "banner_box": ev.banner_is_box() if ev.is_banner() else False,
                 "banner_italic": ev.banner_is_italic() if ev.is_banner() else False,
+                # Leading emoji from the banner style name so the widget
+                # renders the same icon the dropdown does.
+                "banner_symbol": ev.banner_symbol() if ev.is_banner() else "",
                 "has_graphic": bool(graphic),
                 # For FA-icon graphics, send the class + colour directly
                 # so the JS renders an <i> tag inline — no image endpoint

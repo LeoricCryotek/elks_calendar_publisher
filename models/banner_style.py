@@ -73,6 +73,22 @@ class ElksCalendarBannerStyle(models.Model):
         self.ensure_one()
         return bool(self.code) and self.code != "none"
 
+    def leading_symbol(self):
+        """Return the leading non-alphabetic 'word' of the name — typically
+        the emoji at the start (♥ / 👄 / 🎵 / ⛪ / ★). Used by the calendar
+        template and JS widget as the inline icon so the dropdown label
+        and the calendar render display identically.
+
+        Returns empty string if the name starts with a regular word."""
+        self.ensure_one()
+        if not self.name:
+            return ""
+        first = self.name.split(" ", 1)[0]
+        # Reject if it contains any ASCII letters — probably a plain word.
+        if any(c.isalpha() and c.isascii() for c in first):
+            return ""
+        return first
+
     @api.model
     def get_selection_options(self):
         """Return (code, name) tuples for use as a Selection field's

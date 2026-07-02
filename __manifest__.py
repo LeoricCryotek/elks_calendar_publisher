@@ -25,7 +25,7 @@ Includes:
     "author": "Danny Santiago",
     "website": "https://dannysantiago.info",
     "category": "Productivity/Calendar",
-    "version": "19.0.0.9",
+    "version": "19.0.0.11",
     "depends": [
         "base",
         "calendar",

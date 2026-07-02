@@ -19,6 +19,9 @@
       <xpath expr="//sheet" position="inside">
 
         <group string="Lodge Calendar Banner" name="elks_banner">
+          <field name="elks_is_lodge_event"
+                 widget="boolean_toggle"
+                 help="Auto-assign the Lodge user as organizer and attendee."/>
           <field name="elks_banner_style"/>
           <field name="elks_banner_label"
                  invisible="elks_banner_style == 'none'"

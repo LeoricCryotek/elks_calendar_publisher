@@ -70,6 +70,25 @@
     <field name="is_stock">True</field>
   </record>
 
+  <record id="banner_style_antler_meeting" model="elks.calendar.banner.style">
+    <field name="name">🦌 Antler Meeting</field>
+    <field name="code">antler_meeting</field>
+    <field name="description">purple, centered</field>
+    <field name="color">#6f1d77</field>
+    <field name="sequence">45</field>
+    <field name="is_stock">True</field>
+  </record>
+
+  <record id="banner_style_music_bingo" model="elks.calendar.banner.style">
+    <field name="name">🎵 Music Bingo</field>
+    <field name="code">music_bingo</field>
+    <field name="description">highlighted box, amber</field>
+    <field name="color">#b07000</field>
+    <field name="is_highlighted_box">True</field>
+    <field name="sequence">35</field>
+    <field name="is_stock">True</field>
+  </record>
+
   <record id="banner_style_church" model="elks.calendar.banner.style">
     <field name="name">⛪ Grace Bible Church</field>
     <field name="code">church</field>
