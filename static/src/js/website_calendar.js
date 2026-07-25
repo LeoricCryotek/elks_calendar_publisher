@@ -18,19 +18,59 @@ import publicWidget from "@web/legacy/js/public/public_widget";
 publicWidget.registry.ElksCalendarWidget = publicWidget.Widget.extend({
     selector: ".elks-cal-mount",
 
+    // Delegated event bindings — publicWidget re-runs these after every
+    // innerHTML re-render, so the nav buttons keep working when a user
+    // pages through months.
+    events: {
+        "click .elks-cal-nav-prev": "_onPrev",
+        "click .elks-cal-nav-next": "_onNext",
+        "click .elks-cal-nav-today": "_onToday",
+    },
+
     async start() {
         const today = new Date();
-        const year = parseInt(this.el.dataset.year) || today.getFullYear();
-        const month = parseInt(this.el.dataset.month) || today.getMonth() + 1;
-        const showGraphics = this.el.dataset.showGraphics !== "0";
+        // Initial view = data attributes on the snippet, or today if unset.
+        // Once loaded, these are the widget's live cursor into any month.
+        this.year = parseInt(this.el.dataset.year) || today.getFullYear();
+        this.month = parseInt(this.el.dataset.month) || today.getMonth() + 1;
+        this.showGraphics = this.el.dataset.showGraphics !== "0";
+        await this._loadMonth();
+    },
 
-        const resp = await fetch(`/elks/calendar/json/${year}/${month}`);
+    /**
+     * Fetch the current this.year / this.month from the JSON feed and
+     * re-render. Called on initial load and every nav click.
+     */
+    async _loadMonth() {
+        // Loading placeholder so the user gets feedback while the network
+        // request is in flight.
+        this.el.innerHTML = `<p class="text-center text-muted p-3">Loading calendar…</p>`;
+        const resp = await fetch(`/elks/calendar/json/${this.year}/${this.month}`);
         if (!resp.ok) {
-            this.el.innerHTML = `<p class="text-danger">Calendar unavailable.</p>`;
+            this.el.innerHTML = `<p class="text-danger p-3">Calendar unavailable.</p>`;
             return;
         }
         const data = await resp.json();
-        this._render(data, showGraphics);
+        this._render(data, this.showGraphics);
+    },
+
+    _onPrev() {
+        this.month -= 1;
+        if (this.month < 1) { this.month = 12; this.year -= 1; }
+        this._loadMonth();
+    },
+
+    _onNext() {
+        this.month += 1;
+        if (this.month > 12) { this.month = 1; this.year += 1; }
+        this._loadMonth();
+    },
+
+    _onToday() {
+        const today = new Date();
+        this.year = today.getFullYear();
+        this.month = today.getMonth() + 1;
+        this._loadMonth();
     },
 
     _escape(str) {
@@ -91,6 +131,17 @@ publicWidget.registry.ElksCalendarWidget = publicWidget.Widget.extend({
 
         let html = `
           <div class="elks-cal-widget" style="--accent: ${accent}; --accent-2: ${accent2};">
+            <nav class="elks-cal-nav" aria-label="Calendar month navigation">
+              <button type="button" class="elks-cal-nav-prev" aria-label="Previous month">
+                <span aria-hidden="true">&larr;</span> Previous
+              </button>
+              <button type="button" class="elks-cal-nav-today" aria-label="Jump to today">
+                Today
+              </button>
+              <button type="button" class="elks-cal-nav-next" aria-label="Next month">
+                Next <span aria-hidden="true">&rarr;</span>
+              </button>
+            </nav>
             <div class="elks-cal-header">
               <div class="month">${this._escape(data.month_name || "")}</div>
               <div class="deco">${emojiStrip}</div>
