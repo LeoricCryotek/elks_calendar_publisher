@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-  <!-- Full-page public calendar -->
+  <!--
+    Full-page public calendar.
+    Mounts the same website widget users can drag into pages via the
+    Website Builder snippet — so this page gets the Previous / Today /
+    Next month navigation for free, and defaults to the current month.
+
+    An optional download-PDF link appears when a publication exists for
+    the currently-viewed month. Because the widget navigates client-side,
+    the button re-computes on each navigation via JS in website_calendar.js.
+  -->
   <template id="public_calendar_page" name="Elks Calendar — Public Page">
     <t t-call="website.layout">
       <div id="wrap" class="oe_structure">
-        <section class="elks-pub-cal container py-4">
-          <header class="d-flex justify-content-between align-items-end mb-3">
-            <h1 class="display-5 mb-0" t-esc="pub.name"/>
-            <a t-att-href="'/web/content/%d?download=true' % pub.pdf_attachment_id.id"
-               t-if="pub.pdf_attachment_id"
-               class="btn btn-outline-secondary">Download PDF</a>
-          </header>
+        <section class="s_elks_calendar container py-4">
+          <h1 class="display-5 mb-3 text-center">Lodge Calendar</h1>
           <!--
-            The same QWeb body that drives the PDF report renders here
-            scaled to the responsive container width. CSS in
-            website_calendar.scss handles small-screen stacking.
-
-            Calls the BODY template, not report_calendar_document — this
-            page is already inside website.layout, so wrapping with
-            web.html_container would produce nested <html> tags.
+            .elks-cal-mount is the class the JS widget hooks into. Empty
+            data-year / data-month makes it default to the current month.
           -->
-          <t t-call="elks_calendar_publisher.report_calendar_body"/>
+          <div class="elks-cal-mount"
+               t-att-data-year="initial_year or ''"
+               t-att-data-month="initial_month or ''"
+               data-show-graphics="1">
+            <p class="text-center text-muted">Loading calendar…</p>
+          </div>
         </section>
       </div>
     </t>

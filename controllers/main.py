@@ -25,22 +25,27 @@ class ElksCalendarController(http.Controller):
 
     @http.route("/elks/calendar", type="http", auth="public", website=True)
     def latest_calendar(self, **kw):
-        Pub = request.env["elks.calendar.publication"].sudo()
-        latest = Pub.search([("state", "=", "published")],
-                            order="year desc, month desc", limit=1)
-        if not latest:
-            return request.render("elks_calendar_publisher.public_empty")
-        return request.redirect(f"/elks/calendar/{latest.id}")
+        """Public calendar landing page — always renders the widget mount,
+        which defaults to the current month and provides Previous / Today /
+        Next navigation. No publication record required; the widget pulls
+        events straight from the JSON feed.
+        """
+        return request.render("elks_calendar_publisher.public_calendar_page")
 
     @http.route("/elks/calendar/<int:pub_id>",
                 type="http", auth="public", website=True)
     def show_calendar(self, pub_id, **kw):
+        """Legacy per-publication URL — still works for bookmarked links,
+        but now mounts the same widget page as /elks/calendar. The
+        publication ID is preserved via a data attribute so the widget
+        opens directly on that publication's month.
+        """
         pub = request.env["elks.calendar.publication"].sudo().browse(pub_id)
         if not pub.exists() or pub.state != "published":
             return request.not_found()
         return request.render(
             "elks_calendar_publisher.public_calendar_page",
-            {"pub": pub},
+            {"initial_year": pub.year, "initial_month": pub.month},
         )
 
     @http.route("/elks/calendar/json/<int:year>/<int:month>",
