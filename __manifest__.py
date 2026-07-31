@@ -25,7 +25,7 @@ Includes:
     "author": "Danny Santiago",
     "website": "https://dannysantiago.info",
     "category": "Productivity/Calendar",
-    "version": "19.0.0.13",
+    "version": "19.0.0.14",
     "depends": [
         "base",
         "calendar",
@@ -70,4 +70,5 @@ Includes:
     "installable": True,
     "application": True,
     "license": "LGPL-3",
+    "post_init_hook": "_post_init_hook",
 }
