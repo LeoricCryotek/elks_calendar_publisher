@@ -201,7 +201,20 @@ class ElksCalendarPublication(models.Model):
             ("start", "<", utc_end),
         ]
         if self.calendar_id:
-            domain.append(("user_id", "=", self.calendar_id.id))
+            # Include events where the Source User is EITHER the organizer
+            # (user_id) OR one of the attendees (partner_ids). This makes
+            # the Lodge Calendar Event checkbox effective — Danny can
+            # create an event on his own calendar and just add the Lodge
+            # partner as an attendee, and it'll surface on the newsletter.
+            lodge_partner = self.calendar_id.partner_id
+            if lodge_partner:
+                domain += [
+                    "|",
+                    ("user_id", "=", self.calendar_id.id),
+                    ("partner_ids", "in", [lodge_partner.id]),
+                ]
+            else:
+                domain.append(("user_id", "=", self.calendar_id.id))
         # Sort by (start asc, name asc) so each day's events render in
         # chronological order first, then alphabetical for events sharing
         # the same start time.
