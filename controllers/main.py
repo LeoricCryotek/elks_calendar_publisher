@@ -106,14 +106,39 @@ class ElksCalendarController(http.Controller):
         # per-user-timezone variation. No `with_context(tz=...)` needed
         # here.
         Event = request.env["calendar.event"].sudo()
+
+        # Scope the JSON feed to lodge events only. Without this, personal
+        # Google Calendar events synced onto any internal user's calendar
+        # (dentist, massage, family stuff, etc.) leak through onto the
+        # public website. Match the same OR-filter the publication
+        # preview uses: organizer is the Lodge user OR Lodge partner is
+        # an attendee. Lodge user = whichever res.users is set as Source
+        # User Calendar on any elks.calendar.publication record.
+        lodge_pub = Pub.search(
+            [("calendar_id", "!=", False)], order="id asc", limit=1,
+        )
+        lodge_user = lodge_pub.calendar_id if lodge_pub else None
+
+        domain = [
+            ("start", ">=", start_dt),
+            ("start", "<", end_dt),
+        ]
+        if lodge_user:
+            lodge_partner = lodge_user.partner_id
+            if lodge_partner:
+                domain += [
+                    "|",
+                    ("user_id", "=", lodge_user.id),
+                    ("partner_ids", "in", [lodge_partner.id]),
+                ]
+            else:
+                domain.append(("user_id", "=", lodge_user.id))
+
         # Sort by (start asc, name asc) so events sharing a start time
         # render alphabetically after chronological. The JS widget
         # re-sorts defensively but a sorted payload also keeps the JSON
         # debuggable.
-        events = Event.search([
-            ("start", ">=", start_dt),
-            ("start", "<", end_dt),
-        ], order="start asc, name asc")
+        events = Event.search(domain, order="start asc, name asc")
         payload = []
         for ev in events:
             graphic = ev.effective_graphic() if hasattr(ev, "effective_graphic") else None
